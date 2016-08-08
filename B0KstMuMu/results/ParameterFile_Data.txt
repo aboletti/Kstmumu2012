@@ -1,0 +1,2724 @@
+#################################
+# Parameter file to run on Data #
+#################################
+
+
+###########################
+# 1st block of parameters #
+###########################
+# Number of HLT paths
+1
+
+# HLT path 2011:
+#HLT_Dimuon7_LowMass_Displaced_v
+#HLT_DoubleMu4_LowMass_Displaced_v
+#HLT_DoubleMu4p5_LowMass_Displaced_v
+#HLT_DoubleMu5_LowMass_Displaced_v
+
+# HLT path 2012:
+HLT_DoubleMu3p5_LowMass_Displaced_v
+
+
+###########################
+# 2nd block of parameters #
+###########################
+# Number of pre-selection cuts
+16
+
+### HLT-trigger cuts ###
+# mu-mu Vtx CL [0.1]
+0.1
+
+# mu-mu L/sigma w/respect to BS [3.0]
+3.0
+
+# mu-mu DCA w/respect to each other [0.5 cm]
+0.5
+
+# mu DCA w/respect to BS [2.0 cm]
+2.0
+
+# mu-mu cos(alpha) w/respect to BS [0.9]
+0.9
+
+# mu min pT [3.5 GeV/c]
+3.5
+
+# mu max eta [2.2]
+2.2
+
+# mu-mu min pT [6.9 GeV/c]
+6.9
+
+# mu-mu min inv. mass [1.0 GeV/c2]
+1.0
+
+# mu-mu max inv. mass [4.8 GeV/c2]
+4.8
+
+### Pre-selection cuts ###
+# B0 mass lower limit [4.5 GeV/c2]
+4.5
+
+# B0 mass upper limit [6.5 GeV/c2]
+6.5
+
+# B0 Vtx CL [0.01]
+0.01
+
+# K*0 (OR K*0bar) mass window sigma [3.0]
+3.0
+
+# hadron DCA/sigma w/respect to BS [0.8]
+0.8
+
+# hadron min pT [0.4 GeV/c]
+0.4
+
+
+###########################
+# 3rd block of parameters #
+###########################
+# Number of selection cuts
+16
+
+# mu-mu Vtx CL [0.1]
+0.1
+
+# mu min pT [3.5 GeV/c]
+3.5
+
+# B0 L/sigma w/respect to BS [12.0]
+12.0
+
+# B0 Vtx CL [0.1]
+0.1
+
+# B0 cos(alpha) w/respect to BS [0.9994]
+0.9994
+
+# B0 pT [8.0 GeV/c]
+8.0
+
+# B0 eta [2.2]
+2.2
+
+# hadron DCA/sigma w/respect to BS [2.0]
+2.0
+
+# hadron min pT [0.8 GeV/c]
+0.8
+
+# K*0 (OR K*0bar) mass window [0.09 GeV/c2]
+0.09
+
+# KK mass [1.035 GeV/c2]
+1.035
+
+### Muon identification cuts ###
+# Muon selection: n. tracker layers [5.0]
+5.0
+
+# Muon selection: n. pixel layers [1.0]
+1.0
+
+# Muon selection: track chi2 [1.8]
+1.8
+
+# Muon selection: dxy w/respect to primary vtx [3.0]
+3.0
+
+# Muon selection: dz w/respect to primary vtx [30.0]
+30.0
+
+
+###########################
+# 4th block of parameters #
+###########################
+# Number of q^2 bins
+10
+
+# Lower edge bin 0 (min = 4m(mu)^2 = 0.045) [GeV/c2]2
+1.0
+
+# Lower edge bin 1 [GeV/c2]2
+2.0
+
+# Lower edge bin 2 [GeV/c2]2
+4.3
+
+# Lower edge bin 3 [GeV/c2]2
+6.0
+
+# Lower edge bin 4 [GeV/c2]2
+8.68
+
+# Lower edge bin 5 [GeV/c2]2
+10.09
+
+# Lower edge bin 6 [GeV/c2]2
+12.86
+
+# Lower edge bin 7 [GeV/c2]2
+14.18
+
+# Lower edge bin 8 [GeV/c2]2
+16.0
+
+# Upper edge bin 9 (max = (m(B0)-m(K)-m(pi))^2 = 21.589) [GeV/c2]2
+19.0
+
+
+###########################
+# 5th block of parameters #
+###########################
+# Number of cos(theta_K) bins good-tagged events 
+6
+
+# Lower edge bin 0:
+-1
+
+# Lower edge bin 1:
+-0.7
+
+# Lower edge bin 2:
+-0.15
+
+# Lower edge bin 3:
+0.4
+
+# Lower edge bin 4:
+0.8
+
+# Upper edge bin 5:
+1.0
+
+
+###########################
+# 6th block of parameters #
+###########################
+# Number of cos(theta_l) bins good-tagged events
+7
+
+# Lower edge bin 0:
+-1
+
+# Lower edge bin 1:
+-0.7
+
+# Lower edge bin 2:
+-0.3
+
+# Lower edge bin 3:
+0.0
+
+# Lower edge bin 4:
+0.3
+
+# Upper edge bin 5:
+0.7
+
+# Upper edge bin 6:
+1.0
+
+
+###########################
+# 7th block of parameters #
+###########################
+# Number of phi bins good-tagged events
+5
+
+# Lower edge bin 0:
+-3.142
+
+# Lower edge bin 1:
+-1.642
+
+# Lower edge bin 2:
+0.0
+
+# Lower edge bin 3:
+1.642
+
+# Upper edge bin 4:
+3.142
+
+
+###########################
+# 8th block of parameters #
+###########################
+# Number of cos(theta_K) bins mis-tagged events 
+6
+
+# Lower edge bin 0:
+-1
+
+# Lower edge bin 1:
+-0.5
+
+# Lower edge bin 2:
+-0.15
+
+# Lower edge bin 3:
+0.15
+
+# Lower edge bin 4:
+0.45
+
+# Upper edge bin 5:
+1.0
+
+
+###########################
+# 9th block of parameters #
+###########################
+# Number of cos(theta_l) bins mis-tagged events
+6
+
+# Lower edge bin 0:
+-1
+
+# Lower edge bin 1:
+-0.6
+
+# Lower edge bin 2:
+-0.2
+
+# Lower edge bin 3:
+0.2
+
+# Upper edge bin 4:
+0.6
+
+# Upper edge bin 5:
+1.0
+
+
+############################
+# 10th block of parameters #
+############################
+# Number of phi bins mis-tagged events
+5
+
+# Lower edge bin 0:
+-3.142
+
+# Lower edge bin 1:
+-1.642
+
+# Lower edge bin 2:
+0.0
+
+# Lower edge bin 3:
+1.642
+
+# Upper edge bin 4:
+3.142
+
+
+############################
+# 11th block of parameters #
+############################
+# Number of HLT paths and relative cuts for efficiency computation
+4
+
+# HLT path:
+HLT_DoubleMu3p5_LowMass_Displaced_v
+# mu-mu Vtx CL
+0.1
+# mu min pT [GeV/c]
+3.5
+# Number of entries in Data
+1.0
+
+
+############################
+# 12th block of parameters #
+############################
+# Number of fit parameters [67 double; 4 unsigned int] x 3 (global sign, global J/psi, global psi(2S))
+213
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@  signal   @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27633   -0.00135959   0.00135959
+# Signal sigma-1 [GeV/c2]
+0.0311318   -6.49764e-05   6.49764e-05
+# Signal sigma-2 [GeV/c2]
+0.0936254   -0.000474871   0.000474871
+# Fraction
+0.858331   -0.00161472   0.00161472
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.332425   -0.0250641   0.0250641
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0235883   -0.00722864   0.00722864
+# Fraction
+0.91711
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.1067   -0.00108921   0.00108921
+# Sigma-2 mistag [GeV/c2]
+0.04515   -0.000600491   0.000600491
+# Fraction
+0.471117   -0.0114949   0.0114949
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+2208.65   -58.1821   58.1821
+# Mistag fraction
+0.1329   -0.0004   0.0004
+# Peaking bkg yield
+0.0
+# Signal yield
+1231.59   -44.1876   44.1876
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. c0
+0.0
+# Bkg angle1 poly coeff. c1
+0.0
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. c0
+0.0
+# Bkg angle2 poly coeff. c1
+0.0
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.0   0.0   0.0
+# AFB +/- err
+0.0   0.0   0.0
+# P1 +/- err
+0.0   0.0   0.0
+# P2 +/- err
+0.0   0.0   0.0
+# FS +/- err
+0.0   0.0   0.0
+# AS +/- err
+0.0   0.0   0.0
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+2
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@   J/psi   @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27484   -0.000108626   0.000108626
+# Signal sigma-1 [GeV/c2]
+0.0296956   -9.63024e-05   9.63024e-05
+# Signal sigma-2 [GeV/c2]
+0.0633595   -0.000349075   0.000349075
+# Fraction
+0.800596   -0.00383727   0.00383727
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.181483   -0.00166957   0.00166957
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.102674   -0.00107419   0.00107419
+# Sigma-2 mistag [GeV/c2]
+0.0447903   -0.000605358   0.000605358
+# Fraction
+0.457541   -0.0122516   0.0122516
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+56861.8   -390.399   390.399
+# Mistag fraction
+0.1373   -0.0005   0.0005
+# Peaking bkg yield
+0.0
+# Signal yield
+142209   -440.219   440.219
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. c0
+0.0
+# Bkg angle1 poly coeff. c1
+0.0
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. c0
+0.0
+# Bkg angle2 poly coeff. c1
+0.0
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.0   0.0   0.0
+# AFB +/- err
+0.0   0.0   0.0
+# P1 +/- err
+0.0   0.0   0.0
+# P2 +/- err
+0.0   0.0   0.0
+# FS +/- err
+0.0   0.0   0.0
+# AS +/- err
+0.0   0.0   0.0
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@  psi(2S)  @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27477   -0.000441832   0.000441832
+# Signal sigma-1 [GeV/c2]
+0.0297487   -0.000476713   0.000476713
+# Signal sigma-2 [GeV/c2]
+0.0575799   -0.00128205   0.00128205
+# Fraction
+0.751143   -0.0219318   0.0219318
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.193138   -0.00637147   0.00637147
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.101737   -0.00397665   0.00397665
+# Sigma-2 mistag [GeV/c2]
+0.0447773   -0.00295957   0.00295957
+# Fraction
+0.52177   -0.0534537   0.0534537
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+4576.53   -110.867   110.867
+# Mistag fraction
+0.14   -0.002   0.002
+# Peaking bkg yield
+0.0
+# Signal yield
+9255.84   -116.901   116.901
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. c0
+0.0
+# Bkg angle1 poly coeff. c1
+0.0
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. c0
+0.0
+# Bkg angle2 poly coeff. c1
+0.0
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.0   0.0   0.0
+# AFB +/- err
+0.0   0.0   0.0
+# P1 +/- err
+0.0   0.0   0.0
+# P2 +/- err
+0.0   0.0   0.0
+# FS +/- err
+0.0   0.0   0.0
+# AS +/- err
+0.0   0.0   0.0
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+############################
+# 13th block of parameters #
+############################
+# Number of fit parameters [67 double; 4 unsigned int] x 9 q^2 bins
+639
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 0 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.26619   -0.00471225   0.00459776
+# Signal sigma-1 [GeV/c2]
+0.0304184   -0.000275016   0.000275016
+# Signal sigma-2 [GeV/c2]
+0.0921757   -0.00169828   0.00169828
+# Fraction
+0.831529   -0.00692895   0.00692895
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.210102   -0.0333094   0.0441676
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.108208   -0.00490875   0.00490875
+# Sigma-2 mistag [GeV/c2]
+0.0461649   -0.00256457   0.00256457
+# Fraction
+0.457834   -0.0495442   0.0495442
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+90.6181   -10.8767   11.6714
+# Mistag fraction
+0.124   -0.002   0.002
+# Peaking bkg yield
+0.0
+# Signal yield
+73.8622   -9.25375   10.0095
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+2
+# Bkg angle1 poly coeff. c0
+0.0205812   -0.128725   0.128725
+# Bkg angle1 poly coeff. c1
+-0.94024   -0.215192   0.215192
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+3
+# Bkg angle2 poly coeff. c0
+0.462527   -0.864952   0.864952
+# Bkg angle2 poly coeff. c1
+1.58702   -0.971843   0.971843
+# Bkg angle2 poly coeff. c2
+-2.07989   -1.43019   1.43019
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.639437   -0.0938153   0.0867734
+# AFB +/- err
+-0.270347   -0.400742   0.170329
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+1.66144e-05   -1.66144e-05   0.124275
+# AS +/- err
+0.0955886   -0.263224   0.260632
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 1 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27389   -0.00407049   0.00402509
+# Signal sigma-1 [GeV/c2]
+0.0308886   -0.000179248   0.000179248
+# Signal sigma-2 [GeV/c2]
+0.0979804   -0.00130458   0.00130458
+# Fraction
+0.844362   -0.00428812   0.00428812
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.291326   -0.0364752   0.0406423
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.117281   -0.00412318   0.00412318
+# Sigma-2 mistag [GeV/c2]
+0.0484073   -0.00154119   0.00154119
+# Fraction
+0.407694   -0.030546   0.030546
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+289.124   -20.0156   20.5172
+# Mistag fraction
+0.129   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+126.172   -13.7388   14.7053
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+2
+# Bkg angle1 poly coeff. c0
+-0.000328371   -0.0801202   0.0801202
+# Bkg angle1 poly coeff. c1
+-0.999251   -0.000270592   0.000270592
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+4
+# Bkg angle2 poly coeff. c0
+-0.885392   -0.408122   0.408122
+# Bkg angle2 poly coeff. c1
+0.243571   -1.08737   1.08737
+# Bkg angle2 poly coeff. c2
+0.148541   -0.646437   0.646437
+# Bkg angle2 poly coeff. c3
+0.866815   -1.15928   1.15928
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.792733   -0.084595   0.0804363
+# AFB +/- err
+-0.122628   -0.135761   0.150697
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+2.89447e-06   -2.89447e-06   0.0657185
+# AS +/- err
+-0.312489   -0.259498   0.250384
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 2 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27604   -0.00463035   0.00464998
+# Signal sigma-1 [GeV/c2]
+0.0311103   -0.000192986   0.000192986
+# Signal sigma-2 [GeV/c2]
+0.104148   -0.00168266   0.00168266
+# Fraction
+0.857988   -0.0043915   0.0043915
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.248466   -0.0296128   0.0375667
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.111048   -0.00396036   0.00396036
+# Sigma-2 mistag [GeV/c2]
+0.0465904   -0.0018189   0.0018189
+# Fraction
+0.430942   -0.0355055   0.0355055
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+216.406   -17.239   18.2496
+# Mistag fraction
+0.134   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+102.728   -12.5364   12.9674
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+3
+# Bkg angle1 poly coeff. c0
+-0.371655   -0.302466   0.302466
+# Bkg angle1 poly coeff. c1
+-0.746712   -0.187083   0.187083
+# Bkg angle1 poly coeff. c2
+0.624848   -0.49525   0.49525
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+4
+# Bkg angle2 poly coeff. c0
+-1.3381   -0.540814   0.540814
+# Bkg angle2 poly coeff. c1
+1.41569   -1.54337   1.54337
+# Bkg angle2 poly coeff. c2
+1.21027   -0.824211   0.824211
+# Bkg angle2 poly coeff. c3
+-0.812571   -1.66359   1.66359
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.612668   -0.0960027   0.100867
+# AFB +/- err
+0.0275214   -0.153416   0.151529
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+2.28766e-05   -2.28766e-05   0.137908
+# AS +/- err
+-0.276116   -0.289458   0.270846
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 3 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27553   -0.00307799   0.00307161
+# Signal sigma-1 [GeV/c2]
+0.0301922   -0.000149067   0.000149067
+# Signal sigma-2 [GeV/c2]
+0.0890352   -0.00102235   0.00102235
+# Fraction
+0.85582   -0.0038636   0.0038636
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.469477   -0.0807389   0.0965496
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.0978736   -0.00204782   0.00204782
+# Sigma-2 mistag [GeV/c2]
+0.0409881   -0.00123875   0.00123875
+# Fraction
+0.473564   -0.0248193   0.0248193
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+345.05   -22.3952   23.3855
+# Mistag fraction
+0.132   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+219.549   -17.7725   18.2988
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+4
+# Bkg angle1 poly coeff. c0
+-0.403021   -0.347417   0.347417
+# Bkg angle1 poly coeff. c1
+1.31074   -1.03418   1.03418
+# Bkg angle1 poly coeff. c2
+0.448718   -0.486319   0.486319
+# Bkg angle1 poly coeff. c3
+-2.11336   -1.15541   1.15541
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+2
+# Bkg angle2 poly coeff. c0
+-0.550072   -0.180674   0.180674
+# Bkg angle2 poly coeff. c1
+0.589272   -0.395715   0.395715
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.486425   -0.0620509   0.0611427
+# AFB +/- err
+0.0347486   -0.0963888   0.0973677
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+6.62547e-08   -6.62547e-08   0.0223813
+# AS +/- err
+-0.460974   -0.20432   0.1998714
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 4 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27831   -5.18328e-05   5.18328e-05
+# Signal sigma-1 [GeV/c2]
+0.0302283   -9.6229e-05   9.6229e-05
+# Signal sigma-2 [GeV/c2]
+0.0638594   -0.000399306   0.000399306
+# Fraction
+0.829155   -0.00386354   0.00386354
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.2
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.103028   -0.00106786   0.00106786
+# Sigma-2 mistag [GeV/c2]
+0.0450112   -0.00057071   0.00057071
+# Fraction
+0.44669   -0.0117279   0.0117279
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+55000
+# Mistag fraction
+0.1373   -0.0005   0.0005
+# Peaking bkg yield
+0.0
+# Signal yield
+140000
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+4
+# Bkg angle1 poly coeff. c0
+0.0
+# Bkg angle1 poly coeff. c1
+0.0
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+3
+# Bkg angle2 poly coeff. c0
+0.0
+# Bkg angle2 poly coeff. c1
+0.0
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.537318   -0.00206184   0.0020587
+# AFB +/- err
+0.0076739   -0.00261238   0.00261023
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+7.10639e-09   -0.00176938   0.00176938
+# AS +/- err
+-0.204534   -0.00682714   0.00682714
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 5 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27451   -0.00267672   0.00261654
+# Signal sigma-1 [GeV/c2]
+0.0311809   -0.000128223   0.000128223
+# Signal sigma-2 [GeV/c2]
+0.0942737   -0.00103047   0.00103047
+# Fraction
+0.872235   -0.00312221   0.00312221
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.224728   -0.0162612   0.0184369
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.109647   -0.00279549   0.00279549
+# Sigma-2 mistag [GeV/c2]
+0.0467344   -0.000924351   0.000924351
+# Fraction
+0.34609   -0.0207763   0.0207763
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+565.887   -27.8215   29.293
+# Mistag fraction
+0.132   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+313.962   -21.0696   21.8421
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+4
+# Bkg angle1 poly coeff. c0
+-0.532265   -0.273661   0.273661
+# Bkg angle1 poly coeff. c1
+1.53294   -0.828311   0.828311
+# Bkg angle1 poly coeff. c2
+0.661062   -0.395573   0.395573
+# Bkg angle1 poly coeff. c3
+-1.82117   -0.89868   0.89868
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+4
+# Bkg angle2 poly coeff. c0
+-1.06026   -0.278608   0.278608
+# Bkg angle2 poly coeff. c1
+1.10164   -0.690449   0.690449
+# Bkg angle2 poly coeff. c2
+0.597256   -0.375017   0.375017
+# Bkg angle2 poly coeff. c3
+-1.35426   -0.744255   0.744255
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.391763   -0.0508259   0.050168
+# AFB +/- err
+0.157212   -0.0594868   0.0594081
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+2.71814e-06   -2.71814e-06   0.0304327
+# AS +/- err
+0.01894034   -0.1578318   0.1571042
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 6 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27826   -0.000204118   0.000204118
+# Signal sigma-1 [GeV/c2]
+0.032646   -0.000415318   0.000415318
+# Signal sigma-2 [GeV/c2]
+0.062256   -0.00287973   0.00287973
+# Fraction
+0.910166   -0.0188817   0.0188817
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.2
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.104451   -0.00501369   0.00501369
+# Sigma-2 mistag [GeV/c2]
+0.0467867   -0.00297085   0.00297085
+# Fraction
+0.460604   -0.0591986   0.0591986
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+4500
+# Mistag fraction
+0.14   -0.002   0.002
+# Peaking bkg yield
+0.0
+# Signal yield
+9000
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+4
+# Bkg angle1 poly coeff. c0
+0.0
+# Bkg angle1 poly coeff. c1
+0.0
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+3
+# Bkg angle2 poly coeff. c0
+0.0
+# Bkg angle2 poly coeff. c1
+0.0
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.538159   -0.00846236   0.00840851
+# AFB +/- err
+0.0438016   -0.00967385   0.00950819
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+0.0663698   -0.0189542   0.0189542
+# AS +/- err
+-0.204446   -0.0276010   0.0276010
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 7 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27621   -0.00316366   0.0031689
+# Signal sigma-1 [GeV/c2]
+0.0316837   -0.00017388   0.00017388
+# Signal sigma-2 [GeV/c2]
+0.094884   -0.00132472   0.00132472
+# Fraction
+0.863067   -0.00426259   0.00426259
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.193928   -0.0310932   0.036057
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0105251   -0.00610229   0.0151798
+# Fraction
+0.938256   -0.0580989   0.0384469
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.1082   -0.00297102   0.00297102
+# Sigma-2 mistag [GeV/c2]
+0.0465634   -0.00176744   0.00176744
+# Fraction
+0.495705   -0.0323271   0.0323271
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+175.336   -16.6534   17.3005
+# Mistag fraction
+0.132   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+195.007   -15.8537   16.3538
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+4
+# Bkg angle1 poly coeff. c0
+-0.649348   -0.482112   0.482112
+# Bkg angle1 poly coeff. c1
+1.3881   -1.24489   1.24489
+# Bkg angle1 poly coeff. c2
+1.0636   -0.710546   0.710546
+# Bkg angle1 poly coeff. c3
+-1.535   -1.32917   1.32917
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+2
+# Bkg angle2 poly coeff. c0
+-0.145155   -0.0980013   0.0980013
+# Bkg angle2 poly coeff. c1
+-0.854784   -0.159817   0.159817
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.464397   -0.049418   0.0413724
+# AFB +/- err
+0.399356   -0.0641833   0.0285231
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+7.45981e-06   -7.45981e-06   0.108877
+# AS +/- err
+0.27054   -0.1718278   0.1691330
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+2
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@ q^2 bin 8 @@@@@@@@@@@@@@@@@@@@@@@@@@@#
+# Signal mean [GeV/c2]
+5.27964   -0.00292619   0.00292688
+# Signal sigma-1 [GeV/c2]
+0.031461   -0.000217572   0.000217572
+# Signal sigma-2 [GeV/c2]
+0.0766426   -0.0010192   0.0010192
+# Fraction
+0.828301   -0.00675468   0.00675468
+###################################################################
+# Bkg var-1 (tau1 or mean) [GeV/c2]
+0.512508   -0.150994   0.335205
+# Bkg var-2 (tau2 or width) [GeV/c2]
+0.0
+# Fraction
+0.0
+###################################################################
+# Sigma-1 mistag [GeV/c2]
+0.101923   -0.00217886   0.00217886
+# Sigma-2 mistag [GeV/c2]
+0.0452108   -0.00172663   0.00172663
+# Fraction
+0.569344   -0.0298611   0.0298611
+###################################################################
+# Bkg mean right-peak-1 [GeV/c2]
+0.0
+# Bkg sigma right-peak-1 [GeV/c2]
+0.0
+# Bkg mean right-peak-2 [GeV/c2]
+0.0
+# Bkg sigma right-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Bkg mean left-peak-1 [GeV/c2]
+0.0
+# Bkg sigma left-peak-1 [GeV/c2]
+0.0
+# Bkg mean left-peak-2 [GeV/c2]
+0.0
+# Bkg sigma left-peak-2 [GeV/c2]
+0.0
+# Fraction
+0.0
+# Fraction of right-peak
+0.0
+###################################################################
+# Combinatorial bkg yield
+81.7462   -11.9546   12.9259
+# Mistag fraction
+0.137   -0.001   0.001
+# Peaking bkg yield
+0.0
+# Signal yield
+206.476   -14.9629   15.5386
+###################################################################
+### Number of coefficients of the peak.bkg angle1 poly ###
+5
+# Bkg angle1 poly coeff. p0
+0.0
+# Bkg angle1 poly coeff. p1
+0.0
+# Bkg angle1 poly coeff. p2
+0.0
+# Bkg angle1 poly coeff. p3
+0.0
+# Bkg angle1 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle1 poly ###
+2
+# Bkg angle1 poly coeff. c0
+-0.256259   -0.295968   0.295968
+# Bkg angle1 poly coeff. c1
+0.283786   -0.589176   0.589176
+# Bkg angle1 poly coeff. c2
+0.0
+# Bkg angle1 poly coeff. c3
+0.0
+# Bkg angle1 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle2 poly ###
+5
+# Bkg angle2 poly coeff. p0
+0.0
+# Bkg angle2 poly coeff. p1
+0.0
+# Bkg angle2 poly coeff. p2
+0.0
+# Bkg angle2 poly coeff. p3
+0.0
+# Bkg angle2 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle2 poly ###
+2
+# Bkg angle2 poly coeff. c0
+0.218614   -0.160328   0.160328
+# Bkg angle2 poly coeff. c1
+-0.777978   -0.244894   0.244894
+# Bkg angle2 poly coeff. c2
+0.0
+# Bkg angle2 poly coeff. c3
+0.0
+# Bkg angle2 poly coeff. c4
+0.0
+### Number of coefficients of the peak.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. p0
+0.0
+# Bkg angle3 poly coeff. p1
+0.0
+# Bkg angle3 poly coeff. p2
+0.0
+# Bkg angle3 poly coeff. p3
+0.0
+# Bkg angle3 poly coeff. p4
+0.0
+### Number of coefficients of the comb.bkg angle3 poly ###
+5
+# Bkg angle3 poly coeff. c0
+0.0
+# Bkg angle3 poly coeff. c1
+0.0
+# Bkg angle3 poly coeff. c2
+0.0
+# Bkg angle3 poly coeff. c3
+0.0
+# Bkg angle3 poly coeff. c4
+0.0
+###################################################################
+# FL +/- err
+0.37896   -0.0545038   0.0539459
+# AFB +/- err
+0.350857   -0.0655175   0.0652977
+# P1 +/- err
+0.0
+# P2 +/- err
+0.0
+# FS +/- err
+7.77241e-08   -7.77241e-08   0.0866839
+# AS +/- err
+-0.1914786   -0.1605088   0.1602342
+###################################################################
+# Use signal: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+# Use peaking bkg: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians; 11 = two 1 gaussian; 12 = two 2 gaussians
+0
+# Use combinatorial bkg: 0 = no; 1 = 1 exponential; 2 = 2 exponentials; 3 = erfc
+1
+# Use mistag: 0 = no; 1 = 1 gaussian; 2 = 2 gaussians
+2
+
+
+############################
+# 14th block of parameters #
+############################
+# Signal*Efficiency integral +/- err good-tagged events
+9
+
+# q^2 bin 0
+0.00309109   -0.00015996   0.00015996
+
+# q^2 bin 1
+0.00356109   -0.000161416   0.000161416
+
+# q^2 bin 2
+0.0034499   -0.000164651   0.000164651
+
+# q^2 bin 3
+0.00356138   -0.000119554   0.000119554
+
+# q^2 bin 4
+0.0037615   -4.43008e-06   4.43008e-06
+
+# q^2 bin 5
+0.00350723   -0.00010449   0.00010449
+
+# q^2 bin 6
+0.00383351   -1.76927e-05   1.76927e-05
+
+# q^2 bin 7
+0.00325951   -0.000134519   0.000134519
+
+# q^2 bin 8
+0.00344877   -5.34024e-05   5.34024e-05
+
+
+############################
+# 15th block of parameters #
+############################
+# Signal*Efficiency integral +/- err mis-tagged events
+9
+
+# q^2 bin 0
+0.000471927   -4.56498e-05   4.56498e-05
+
+# q^2 bin 1
+0.000479207   -6.21823e-05   6.21823e-05
+
+# q^2 bin 2
+0.000575519   -6.09974e-05   6.09974e-05
+
+# q^2 bin 3
+0.000541247   -3.16903e-05   3.16903e-05
+
+# q^2 bin 4
+0.000565492   -8.59692e-07   8.59692e-07
+
+# q^2 bin 5
+0.000606059   -2.17674e-05   2.17674e-05
+
+# q^2 bin 6
+0.00059674   -4.10635e-06   4.10635e-06
+
+# q^2 bin 7
+0.00052291   -3.44226e-05   3.44226e-05
+
+# q^2 bin 8
+0.000517821   -1.82677e-05   1.82677e-05
+
+
+############################
+# 16th block of parameters #
+############################
+# Number of dBF/dq2 -/+ err [x 10-8]
+9
+
+# q^2 bin 0
+4.70382   -0.671386   0.671386
+
+# q^2 bin 1
+3.30537   -0.440983   0.440983
+
+# q^2 bin 2
+3.44873   -0.470448   0.470448
+
+# q^2 bin 3
+4.70077   -0.417527   0.417527
+
+# q^2 bin 4
+0.0   0.0   0.0
+
+# q^2 bin 5
+6.20615   -0.447539   0.447539
+
+# q^2 bin 6
+0.0   0.0   0.0
+
+# q^2 bin 7
+6.54069   -0.588447   0.588447
+
+# q^2 bin 8
+4.19374   -0.320517   0.320517
+
+
+############################
+# 17th block of parameters #
+############################
+# Number of systematic errors from different sources [5 parameters x 9 q^2bins]
+45
+
+# q^2 bin 0; +error --- -error
+# FL
+0.054   0.054
+# AFB
+0.068   0.068
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.38   0.38
+
+# q^2 bin 1; +error --- -error
+# FL
+0.043   0.043
+# AFB
+0.049   0.049
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.26   0.26
+
+# q^2 bin 2; +error --- -error
+# FL
+0.054   0.054
+# AFB
+0.027   0.027
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.32   0.32
+
+# q^2 bin 3; +error --- -error
+# FL
+0.051   0.051
+# AFB
+0.022   0.022
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.39   0.39
+
+# q^2 bin 4; +error --- -error
+# FL
+0.0   0.0
+# AFB
+0.0   0.0
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.0   0.0
+
+# q^2 bin 5; +error --- -error
+# FL
+0.036   0.036
+# AFB
+0.012   0.012
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.61   0.61
+
+# q^2 bin 6; +error --- -error
+# FL
+0.0   0.0
+# AFB
+0.0   0.0
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.0   0.0
+
+# q^2 bin 7; +error --- -error
+# FL
+0.037   0.037
+# AFB
+0.012   0.012
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.55   0.55
+
+# q^2 bin 8; +error --- -error
+# FL
+0.036   0.036
+# AFB
+0.015   0.015
+# P1
+0.0   0.0
+# P2
+0.0   0.0
+# Branching-Fraction [x 10-8]
+0.35   0.35
+
+
+############################
+# 18th block of parameters #
+############################
+# Number of NLL for profile likelihood [5 parameters x 9 q^2bins]
+45
+
+# q^2 bin 0
+# FL
+-734.805
+# AFB
+-734.805
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-734.805
+
+# q^2 bin 1
+# FL
+-2087.98
+# AFB
+-2087.98
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-2087.98
+
+# q^2 bin 2
+# FL
+-1497.31
+# AFB
+-1497.31
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-1497.31
+
+# q^2 bin 3
+# FL
+-2959.59
+# AFB
+-2959.59
+# P1
+0.0
+# P1
+0.0
+# Branching-Fraction
+-2959.59
+
+# q^2 bin 4
+# FL
+-2.47748e+06
+# AFB
+-2.47748e+06
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+0.0
+
+# q^2 bin 5
+# FL
+-5014.36
+# AFB
+-5014.36
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-5014.36
+
+# q^2 bin 6
+# FL
+-126704
+# AFB
+-126704
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+0.0
+
+# q^2 bin 7
+# FL
+-1909.32
+# AFB
+-1909.32
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-1909.32
+
+# q^2 bin 8
+# FL
+-1511.49
+# AFB
+-1511.49
+# P1
+0.0
+# P2
+0.0
+# Branching-Fraction
+-1511.49
+
+
+############################
+# 19th block of parameters #
+############################
+# Efficiency parameters for good-tagged events averaged over all HLT paths
+54
+
+1.5   0.00676374   0.000136112   -0.000709005   0.00022247   -0.00249233   0.00025639   -0.003247   0.000318638
+1.5   5.89256e-05   0.000152345   -0.00169766   0.000246007   -0.000495223   0.000301868   0.00240385   0.000362118
+1.5   -0.0163915   0.000179417   0.00117782   0.000276438   0.00704707   0.000340083   0.00801082   0.000403709
+1.5   -0.000273075   0.000184888   0.0037957   0.000286831   0.00104436   0.000356293   -0.00516022   0.000422265
+1.5   0.00998996   0.000155306   -0.000478251   0.000251729   -0.00475752   0.000308635   -0.00481238   0.000373045
+1.5   0.000212562   0.000160953   -0.0020941   0.000258292   -0.000548426   0.000319583   0.00275297   0.000382335
+3.15   0.00633264   4.56527e-05   -0.00107913   7.31861e-05   -0.00246464   7.98861e-05   -0.00257634   0.000102382
+3.15   0.00011519   5.34386e-05   0.000357487   8.44245e-05   -0.000256234   0.000101424   -0.000415485   0.000121825
+3.15   -0.0114878   5.76264e-05   0.00317818   9.19608e-05   0.00558219   0.000115295   0.00349474   0.000137027
+3.15   -0.000283776   5.96917e-05   -0.000830831   9.60709e-05   0.000934496   0.000121997   0.000865896   0.000144619
+3.15   0.00517557   5.33346e-05   -0.00208861   8.61735e-05   -0.00311075   0.000108653   -0.000935325   0.000130812
+3.15   0.000168053   5.5407e-05   0.000472166   8.89365e-05   -0.00067412   0.000112794   -0.000450095   0.000134485
+5.15   0.0053115   5.01523e-05   -0.000997095   8.182e-05   -0.00193733   8.9746e-05   -0.00213612   0.000115029
+5.15   0.00090867   5.97749e-05   0.00177136   9.57211e-05   -0.00108818   0.000115429   -0.00224767   0.000138404
+5.15   -0.00523858   6.32211e-05   0.00290299   0.000102733   0.00355326   0.000126586   -0.000386248   0.000152101
+5.15   -0.00253326   6.53654e-05   -0.00299399   0.000106721   0.00360539   0.000133477   0.00467192   0.000159594
+5.15   -1.32441e-05   5.9306e-05   -0.00188817   9.71361e-05   -0.0015568   0.000119047   0.00253355   0.000144942
+5.15   0.0016193   6.17898e-05   0.00121613   0.000100406   -0.00255987   0.000124781   -0.00246975   0.000149834
+7.34   0.00439686   8.55438e-05   -0.00106508   0.000140049   -0.00140738   0.000150941   -0.00157004   0.000195769
+7.34   0.000446029   0.000111133   0.00134145   0.000169867   -0.000174228   0.000200885   -0.00175391   0.000238372
+7.34   0.00118147   0.000120482   0.00227636   0.000185549   -0.00122105   0.000222318   -0.00306119   0.000262956
+7.34   -0.00104853   0.000126756   -0.000483479   0.000195119   -1.28063e-05   0.000236589   0.00225208   0.000277638
+7.34   -0.00541685   0.000111918   -0.00123886   0.000175288   0.00292606   0.000207381   0.00480004   0.000248599
+7.34   0.000581916   0.000118194   -0.000954518   0.000182397   0.000188749   0.000219445   -0.000361388   0.000258743
+9.385   0.00424869   0.000149297   -0.000952072   0.000354834   -0.00142424   0.000265277   -0.00149733   0.000507587
+9.385   0.00015798   0.000988123   0.000322519   0.00234712   -9.12329e-05   0.00175469   -0.000393678   0.00335702
+9.385   0.00256854   0.00117291   0.000807382   0.00285888   -0.00190442   0.0021289   -0.00233125   0.00410816
+9.385   -0.00070231   0.00558444   -0.00257141   0.0133234   -0.000397056   0.00995226   0.0038093   0.0190703
+9.385   -0.00442199   0.00147244   0.000436478   0.00365149   0.00293647   0.0027314   0.00204286   0.00528285
+9.385   0.000583286   0.00594772   0.00270838   0.0142446   0.000682009   0.01064   -0.00406299   0.0204095
+11.475   0.0037791   0.000191046   -0.000836425   0.000476388   -0.00122352   0.000358535   -0.00128792   0.000692267
+11.475   0.000549733   0.00126219   0.00249583   0.00314756   -0.000171702   0.00236905   -0.00304816   0.00457339
+11.475   0.00183356   0.00160376   -8.78948e-05   0.00393475   -0.000891545   0.00299978   -0.00112087   0.00572438
+11.475   -0.000376677   0.00721645   -0.00772671   0.0179402   -0.000702342   0.0135357   0.00956291   0.0260722
+11.475   -0.0020328   0.00214009   9.03648e-05   0.00521139   0.000523279   0.00400497   0.00164032   0.00759081
+11.475   7.20351e-05   0.0077786   0.00660367   0.0192898   0.000578652   0.0145854   -0.00764105   0.0280401
+13.52   0.00392961   5.96656e-05   -0.000825492   8.87491e-05   -0.00149183   9.71958e-05   -0.00100393   0.000122488
+13.52   -0.000198998   8.76475e-05   -0.000686273   0.000113082   -9.10702e-05   0.000130119   0.00115309   0.000149003
+13.52   0.00204983   0.000106055   0.000417994   0.000127159   -0.0010306   0.000144129   -0.00206512   0.000161678
+13.52   -0.000132793   0.000113668   0.00287853   0.000132122   0.00277137   0.000148095   -0.00581455   0.00016571
+13.52   -0.000408959   0.000113884   -0.00138474   0.0001313   -0.000188536   0.000147259   0.00243189   0.000164099
+13.52   0.000339501   0.000116547   -0.00256822   0.000132584   -0.00321278   0.000147834   0.00517988   0.000164735
+15.09   0.00336598   5.40978e-05   -0.000543568   0.000142864   -0.00135251   0.000102407   -0.000635552   0.000208792
+15.09   0.000674865   0.000357223   0.00112804   0.000944442   -0.000872569   0.000676267   -0.00182083   0.00138026
+15.09   0.0019861   0.000456963   -0.00115342   0.00117498   -0.00131747   0.000860914   0.000289656   0.00172057
+15.09   -0.00164779   0.00204496   -0.0010662   0.00537854   0.00420974   0.00386719   0.0020538   0.00786326
+15.09   -0.000572368   0.000611198   -0.000742764   0.00156634   0.000770285   0.00115797   0.00103359   0.00229914
+15.09   0.00178053   0.00220636   -0.00043315   0.00578417   -0.00475241   0.00417244   0.000219673   0.00845999
+17.5   0.00358748   0.000105976   -0.000125776   0.000287212   -0.00158695   0.00019997   5.48713e-05   0.000423593
+17.5   0.000946257   0.000700903   0.000649113   0.00189991   -0.00160336   0.00132223   -0.000914923   0.00280167
+17.5   0.00145205   0.000854302   -0.00255613   0.00230082   -0.000842929   0.00162621   0.0018354   0.00341038
+17.5   -0.00321434   0.0039785   -0.00148061   0.0107711   0.00663242   0.00751615   0.00158474   0.0158968
+17.5   -0.000252312   0.0011001   0.0011048   0.00297248   0.000163202   0.00212107   -0.000646297   0.0044306
+17.5   0.00276887   0.00425666   0.000235622   0.0115199   -0.00552368   0.0080576   4.48009e-05   0.0170185
+
+
+############################
+# 20th block of parameters #
+############################
+# Efficiency parameters for mis-tagged events averaged over all HLT paths
+54
+
+1.5   0   0   0   0   0   0   0   0
+1.5   0   0   0   0   0   0   0   0
+1.5   0   0   0   0   0   0   0   0
+1.5   0   0   0   0   0   0   0   0
+1.5   0   0   0   0   0   0   0   0
+1.5   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+3.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+5.15   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+7.34   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+9.385   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+11.475   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+13.52   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+15.09   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+17.5   0   0   0   0   0   0   0   0
+
+
+############################
+# 21st block of parameters #
+############################
+# Number of generic parameters
+23
+
+# [1 = normalize yields to compute dBF/dq^2 with respect to J/psi; 0 = use psi(2S) instead]
+1
+
+# Polynomial degree for efficiency histogram interpolation
+1
+
+# Tolerance to boundaries for the anti-transformation [range = (0,1)]
+0.01
+
+# Use MINOS for error computation [0 = no; 1 = yes]
+1
+
+# Apply constraints in the likelihood [0 = no; 1 = yes]
+1
+
+# Control fit workflow:
+# trueMistag  = keep only true mis-tagged events
+# trueGoodtag = keep only true good-tagged events
+# trueAll     = keep all true events
+# allEvts     = keep all events
+allEvts
+
+# Control mistag fraction workflow [0 = fixed; 1 = free with constraint; 2 = free; 3 = dynamic]
+0
+
+# Save mistag fraction [0 = no; 1 = yes]
+0
+
+# Use SP-wave [0 = no; 1 = yes]
+1
+
+# Implement the angular variable transformation : "physical domain" <--> "infinite domain" [0 = no; 1 = yes]
+0
+
+# B0 mass interval left [0.28 GeV/c2]
+0.28
+
+# B0 mass interval right [0.28 GeV/c2]
+0.28
+
+# N-sigma signal B0 for fit [3.0]
+3.0
+
+# N-sigma signal B0 for S/sqrt(S+B) [2.5]
+2.5
+
+# N-sigma background for S/sqrt(S+B) [3.0]
+3.0
+
+# N-sigma psi mass interval [3.0]
+3.0
+
+# B&psi mass window J/psi low [0.16 GeV/c2]
+0.16
+
+# B&psi mass window J/psi high [0.06 GeV/c2]
+0.06
+
+# B&psi mass window psi(2S) low [0.06 GeV/c2]
+0.06
+
+# B&psi mass window psi(2S) high [0.03 GeV/c2]
+0.03
+
+# B0 peak sigma-1 from signal MC, whole q2 spectrum [GeV/c2]
+0.0311318
+
+# B0 peak sigma-2 from signal MC, whole q2 spectrum [GeV/c2]
+0.0936254
+
+# B0 peak gaussian fraction from signal MC, whole q2 spectrum
+0.858331
+
+
+############################
+# 22nd block of parameters #
+############################
+# Integrated luminosity
+1
+
+# Luminosity [fb-1]
+20.5
+
+
+############################
+# 23rd block of parameters #
+############################
+# Dataset type
+1
+
+# [0 = data; 1 = MC B0-->K*mumu; 3 = MC B0-->K*J/psi; 5 = MC B0-->K*psi(2S)]
+0

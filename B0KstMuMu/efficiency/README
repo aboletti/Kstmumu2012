@@ -1,0 +1,49 @@
+# Stefano Lacaprara  <lacaprara@pd.infn.it>  INFN Padova
+# 05-Oct-2015
+# /afs/cern.ch/user/s/slacapra/public/B0KstMuMu
+
+The files in the current directory have been produced for the full angular analysis of the B0->K*(Kpi)mumu decay.
+
+## DRAFT (VERY DRAFT) AN describing the efficiency
+AN-14-000_temp.pdf
+AN-14-000.tgz
+
+## Preliminary Efficiency pdf
+# an exampe macro to show how to access the pdf
+readPdfExample.C
+
+# version 0, obsolete
+effKEpdf_out.root
+
+## version 1.0 current 40*40*40 bins
+# signal Right tag
+effKEpdf_out_RT.root
+# signal Wrong tag tag
+effKEpdf_out_WT.root
+
+# J/Psi control sample, Right Tag
+effKEpdf_out_RT_Jpsi.root
+# J/Psi control sample, Wrong Tag
+effKEpdf_out_WT_Jpsi.root
+
+# Psi' control sample, Right Tag
+effKEpdf_out_RT_psiprime.root
+# Psi' control sample, Wrong Tag
+effKEpdf_out_WT_psiprime.root
+
+## version 2.0 current
+## as above, but with 120*120*120 bins
+# signal Right tag
+effKEpdf_out_RT.root
+# signal Wrong tag tag
+effKEpdf_out_WT.root
+
+# J/Psi control sample, Right Tag
+effKEpdf_out_RT_Jpsi.root
+# J/Psi control sample, Wrong Tag
+effKEpdf_out_WT_Jpsi.root
+
+# Psi' control sample, Right Tag
+effKEpdf_out_RT_psiprime.root
+# Psi' control sample, Wrong Tag
+effKEpdf_out_WT_psiprime.root
