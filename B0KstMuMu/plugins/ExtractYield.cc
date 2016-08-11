@@ -80,7 +80,7 @@ using namespace RooFit;
 // ##########################################
 #define MAKEmumuPLOTS false
 #define SETBATCH      true
-#define PROFILENLL    false //[true= plot the profile likelihood]
+#define PROFILENLL    true //[true= plot the profile likelihood]
 #define PLOT          false //[true= plot the results]
 #define SAVEPOLY      false // ["true" = save bkg polynomial coefficients in new parameter file; "false" = save original values]
 #define SAVEPLOT      false   //2015-08-20
@@ -132,6 +132,14 @@ bool useToyDataset;
 
 bool scanInitVal;
 int scanIndx;
+double scanIndxMax = 800.;
+
+// double maxAs5[9] = {1,1,1,,,,,,};
+// double minAs5[9] = {-1,-1,,,,,,,};
+double maxP1 [9] = { 0.85, 0.35, 1.00, 0.00,0,-0.25,0, 0.10,-0.17};
+double minP1 [9] = {-0.65,-1.00,-0.15,-0.90,0,-0.80,0,-0.75,-0.85};
+double maxP5p[9] = { 0.65, 0.50,-0.60,-0.30,0,-0.45,0,-0.35,-0.32};
+double minP5p[9] = {-0.45,-1.10,-1.30,-0.95,0,-0.85,0,-0.95,-0.82};
 
 double scanStep1[9] = {0.0159847,0.0110658,0.0140337,0.00486634,0,0.00471914,0,0.00420572,0.00854125};
 double scanStep2[9] = {0.42,0.67,0.33,0.24,0,0.17,0,0.07,0.22};
@@ -1010,7 +1018,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
       myString.clear(); myString.str("");
       myString << fitParam->operator[](Utility->GetFitParamIndx("nBkgPeak"))->operator[](q2BinIndx).c_str();
       SetValueAndErrors(pdf,"nBkgComb",MULTYIELD,&myString,&value,&errLo,&errHi);
-      GetVar(pdf,"nBkgComb")->setConstant(true);
+      GetVar(pdf,"nBkgComb")->setConstant(false);
     }
   
 
@@ -1146,7 +1154,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("nSig"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"nSig",MULTYIELD,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"nSig")->setConstant(true);
+    GetVar(pdf,"nSig")->setConstant(false);
     //#if you want to scan values#
     // myString.clear(); myString.str("");
     // myString << RooRandom::uniform(&RG);
@@ -1259,14 +1267,21 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("P5pS"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P5pS",1.0,&myString,&value,&errLo,&errHi);
-    if (scanInitVal) {
-      double inVal = 100;
-      do {
-	inVal = pdf->getVariables()->getRealValue("P5pS")+RooRandom::gaussian(&RG)*scanStep3[q2BinIndx];
-      } while (inVal<-10. || inVal>10.); 
-      pdf->getVariables()->setRealValue("P5pS",inVal);
-    }
     GetVar(pdf,"P5pS")->setConstant(false);
+    if (!PROFILENLL && scanInitVal) {
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("P5pS")+RooRandom::gaussian(&RG)*scanStep3[q2BinIndx];
+      // } while (inVal<-10. || inVal>10.); 
+      // pdf->getVariables()->setRealValue("P5pS",inVal);
+      pdf->getVariables()->setRealValue("P5pS",-0.8*RooRandom::uniform(&RG));
+    }
+    if (PROFILENLL) {
+      if (scanIndx%2==1) {
+	pdf->getVariables()->setRealValue("P5pS", minP5p[q2BinIndx] + (scanIndx-1.)/(scanIndxMax-2.)*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]) );
+	GetVar(pdf,"P5pS")->setConstant(true);
+      }
+    }
 
     //### scan ##
     // myString.clear(); myString.str("");
@@ -1282,14 +1297,25 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("P1S"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P1S",1.0,&myString,&value,&errLo,&errHi);
-    if (scanInitVal) {
-      double inVal = 100;
-      do {
-	inVal = pdf->getVariables()->getRealValue("P1S")+RooRandom::gaussian(&RG)*scanStep2[q2BinIndx];
-      } while (inVal<-1. || inVal>1.); 
-      pdf->getVariables()->setRealValue("P1S",inVal);
-    }
     GetVar(pdf,"P1S")->setConstant(false);
+    if (!PROFILENLL && scanInitVal) {
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("P1S")+RooRandom::gaussian(&RG)*scanStep2[q2BinIndx];
+      // } while (inVal<-1. || inVal>1.); 
+      // pdf->getVariables()->setRealValue("P1S",inVal);
+      pdf->getVariables()->setRealValue("P1S",-0.8-pdf->getVariables()->getRealValue("P5pS"));
+    }
+    if (PROFILENLL) {
+      if (scanIndx%2==0) {
+	pdf->getVariables()->setRealValue("P1S", minP1[q2BinIndx] + scanIndx/(scanIndxMax-2.)*(maxP1[q2BinIndx]-minP1[q2BinIndx]) );
+	GetVar(pdf,"P1S")->setConstant(true);
+	pdf->getVariables()->setRealValue("P5pS", -0.5-0.7*pdf->getVariables()->getRealValue("P1S"));
+      } else {
+	double inVal = -0.8-1.3*pdf->getVariables()->getRealValue("P5pS");
+	if (inVal < -0.8) inVal = -0.8;
+	pdf->getVariables()->setRealValue("P1S", inVal);
+    }
     //#scan
     // myString.clear(); myString.str("");
     // myString << 2 * RooRandom::uniform(&RG)  - 1.;
@@ -1319,11 +1345,12 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString << fitParam->operator[](Utility->GetFitParamIndx("As5S"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"As5S",1.0,&myString,&value,&errLo,&errHi);
     if (scanInitVal) {
-      double inVal = 100;
-      do {
-	inVal = pdf->getVariables()->getRealValue("As5S")+RooRandom::gaussian(&RG)*scanStep4[q2BinIndx];
-      } while (inVal<-1. || inVal>1.); 
-      pdf->getVariables()->setRealValue("As5S",inVal);
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("As5S")+RooRandom::gaussian(&RG)*scanStep4[q2BinIndx];
+      // } while (inVal<-1. || inVal>1.); 
+      // pdf->getVariables()->setRealValue("As5S",inVal);
+      pdf->getVariables()->setRealValue("As5S",0);
     }
     GetVar(pdf,"As5S")->setConstant(false);
 
@@ -2627,9 +2654,9 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
 
     }
     // ###################
-    // # Profiling scan  #
+    // # Profiling scan  # (old style)
     // ###################
-    if (PROFILENLL == true)
+    if (PROFILENLL == true && false)
     {
 
       string varName;

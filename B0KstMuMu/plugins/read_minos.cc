@@ -38,7 +38,7 @@ vector<double> vLik (0);
 
 void open (int q2BinIndx, int scanIndx, bool print=false)
 {
-  TString filename = Form("Data_scan_test2/%i/Fitresult4_2.root",scanIndx);
+  TString filename = Form("Data_scan_minos/%i/Fitresult4_2.root",scanIndx);
   if ( gSystem->AccessPathName(filename) ) return;
   TFile* f = new TFile(filename);
   if (f) {
@@ -49,8 +49,7 @@ void open (int q2BinIndx, int scanIndx, bool print=false)
     // cout<<endl;
 
     if ( !print ) {
-      if ( fr->status()==0 && fr->covQual()==3 ) if ( true || fr->status()>-1 ) {
-	  if (q2BinIndx>1 || fr->minNll()<-622.040) cout<<q2BinIndx-1<<" "<<scanIndx<<" "<<fr->minNll()<<endl;
+      if ( fr->status()==0 && fr->covQual()==3 ) /*if ( true || fr->status()>-1 )*/ {
 	  vP5p.push_back(((RooRealVar*)fr->floatParsFinal().at(2))->getVal());
 	  vP1.push_back(((RooRealVar*)fr->floatParsFinal().at(1))->getVal());
 	  vA5s.push_back(((RooRealVar*)fr->floatParsFinal().at(0))->getVal());
@@ -63,13 +62,13 @@ void open (int q2BinIndx, int scanIndx, bool print=false)
 	    best = scanIndx;
 	    edm = fr->edm();
 	  }
-	} //else cout<<scanIndx<<" "<<fr->status()<<" "<<fr->covQual()<<endl;
+	} else cout<<scanIndx<<" error: "<<fr->status()<<" "<<fr->covQual()<<endl;
     } else {
       cout<<scanIndx<<": "<<endl;
       cout<<"(fnc="<<fr->minNll()<<",edm="<<fr->edm()<<",stat="<<fr->status()<<",covQ="<<fr->covQual()<<")"<<endl;
-      cout<<"A5s\t"<<((RooRealVar*)fr->floatParsInit().at(0))->getVal()<<"  \t"<<((RooRealVar*)fr->floatParsFinal().at(0))->getVal()
-	  <<"\nP1\t"<<((RooRealVar*)fr->floatParsInit().at(1))->getVal()<<"  \t"<<((RooRealVar*)fr->floatParsFinal().at(1))->getVal()
-	  <<"\nP5p\t"<<((RooRealVar*)fr->floatParsInit().at(2))->getVal()<<"  \t"<<((RooRealVar*)fr->floatParsFinal().at(2))->getVal()<<endl;
+      cout<<"A5s\t"<<((RooRealVar*)fr->floatParsFinal().at(0))->getVal()<<"  \t+"<<((RooRealVar*)fr->floatParsFinal().at(0))->getErrorHi()<<" -"<<((RooRealVar*)fr->floatParsFinal().at(0))->getErrorLo()
+	  <<"\nP1\t"<<((RooRealVar*)fr->floatParsFinal().at(1))->getVal()<<"  \t+"<<((RooRealVar*)fr->floatParsFinal().at(1))->getErrorHi()<<" -"<<((RooRealVar*)fr->floatParsFinal().at(1))->getErrorLo()
+	  <<"\nP5p\t"<<((RooRealVar*)fr->floatParsFinal().at(2))->getVal()<<"  \t+"<<((RooRealVar*)fr->floatParsFinal().at(2))->getErrorHi()<<" -"<<((RooRealVar*)fr->floatParsFinal().at(2))->getErrorLo()<<endl;
     }
   } else {
     // cout<<"No file for result "<<scanIndx<<endl;
@@ -93,13 +92,13 @@ void read (int q2BinIndx)
   minNll = 9999999;
   for (int cnt=600; cnt<800; cnt++) open(q2BinIndx, cnt);
   if ( minNll == 9999999 ) {
-    // cout<<"Best "<<q2BinIndx-1<<": no good results"<<endl;
+    cout<<"Best "<<q2BinIndx-1<<": no good results"<<endl;
     return;
   }
 
-  // cout<<"Best "<<q2BinIndx-1<<": "<<best<<" ("<<minNll<<"), "<<vLik.size()<<" good fits"<<endl;
+  cout<<"Best "<<q2BinIndx-1<<": "<<best<<" ("<<minNll<<"), "<<vLik.size()<<" good fits"<<endl;
 
-  // open(q2BinIndx, best, true);
+  open(q2BinIndx, best, true);
 
   // double* aP5p = new double[vLik.size()];
   // double* aP1  = new double[vLik.size()];
@@ -146,7 +145,7 @@ void read (int q2BinIndx)
   return;
 }
 
-void read_data (int q2BinIndx = 0)
+void read_minos (int q2BinIndx = 0)
 {
   if (q2BinIndx==0) for (q2BinIndx=1;q2BinIndx<10;q2BinIndx++) read(q2BinIndx);
   else if (q2BinIndx>0 && q2BinIndx<10) read(q2BinIndx);
