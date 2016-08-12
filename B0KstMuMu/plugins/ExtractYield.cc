@@ -1315,6 +1315,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
 	double inVal = -0.8-1.3*pdf->getVariables()->getRealValue("P5pS");
 	if (inVal < -0.8) inVal = -0.8;
 	pdf->getVariables()->setRealValue("P1S", inVal);
+      }
     }
     //#scan
     // myString.clear(); myString.str("");
