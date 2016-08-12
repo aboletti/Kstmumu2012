@@ -47,7 +47,7 @@ int nLim[9] = {199,199,199,199,0,199,0,199,199};
 
 void open (int q2BinIndx, int scanIndx, bool print=false)
 {
-  TString filename = Form("Data_scan_hprof/%i/Fitresult4_2.root",scanIndx);
+  TString filename = Form("Data_scan_hprof2/%i/Fitresult4_2.root",scanIndx);
   if ( gSystem->AccessPathName(filename) ) return;
   TFile* f = new TFile(filename);
   if (f) {
@@ -113,7 +113,7 @@ void read (int q2BinIndx)
   vP1f.clear();
 
   minNll = 9999999;
-  for (int cnt=0; cnt<1600; cnt++) open(q2BinIndx, cnt);
+  for (int cnt=0; cnt<800; cnt++) open(q2BinIndx, cnt);
   if ( minNll == 9999999 ) {
     // cout<<"Best "<<q2BinIndx<<": no good results"<<endl;
     return;
@@ -172,37 +172,37 @@ void read (int q2BinIndx)
   gLim[q2BinIndx]->Draw("sameP");
   gLim[q2BinIndx]->SetMarkerStyle(7);
 
-  can1[q2BinIndx]->SaveAs(Form("plots/scanLimit_%i.pdf",q2BinIndx));
+  can1[q2BinIndx]->SaveAs(Form("Data_scan_hprof2/scanLimit_%i.pdf",q2BinIndx));
 
-  // can[q2BinIndx] = new TCanvas (Form("can%i",q2BinIndx),Form("can%i",q2BinIndx));
+  can[q2BinIndx] = new TCanvas (Form("can%i",q2BinIndx),Form("can%i",q2BinIndx));
 
-  // gP5p[q2BinIndx] = new TGraph( vP5p.size(), aP5p, aLikP5p );
-  // gP1 [q2BinIndx] = new TGraph( vP1.size(), aP1 , aLikP1 );
-  // // gA5s[q2BinIndx] = new TGraph( vLik.size(), aA5s, aLik );
-  // // gSig[q2BinIndx] = new TGraph( vLik.size(), aSig, aLik );
-  // // gBkg[q2BinIndx] = new TGraph( vLik.size(), aBkg, aLik );
+  gP5p[q2BinIndx] = new TGraph( vP5p.size(), aP5p, aLikP5p );
+  gP1 [q2BinIndx] = new TGraph( vP1.size(), aP1 , aLikP1 );
+  // gA5s[q2BinIndx] = new TGraph( vLik.size(), aA5s, aLik );
+  // gSig[q2BinIndx] = new TGraph( vLik.size(), aSig, aLik );
+  // gBkg[q2BinIndx] = new TGraph( vLik.size(), aBkg, aLik );
 
-  // can[q2BinIndx]->Divide(2,1);
-  // can[q2BinIndx]->cd(1);
-  // gP5p[q2BinIndx]->Draw("AP");
-  // gP5p[q2BinIndx]->SetMarkerStyle(7);
-  // gP5p[q2BinIndx]->SetTitle("P5p");
-  // can[q2BinIndx]->cd(2);
-  // gP1[q2BinIndx]->Draw("AP");
-  // gP1[q2BinIndx]->SetMarkerStyle(7);
-  // gP1[q2BinIndx]->SetTitle("P1");
-  // // can[q2BinIndx]->cd(3);
-  // // gA5s[q2BinIndx]->Draw("AP");
-  // // gA5s[q2BinIndx]->SetMarkerStyle(7);
-  // // gA5s[q2BinIndx]->SetTitle("As5");
-  // // can[q2BinIndx]->cd(4);
-  // // gSig[q2BinIndx]->Draw("AP");
-  // // gSig[q2BinIndx]->SetMarkerStyle(7);
-  // // can[q2BinIndx]->cd(5);
-  // // gBkg[q2BinIndx]->Draw("AP");
-  // // gBkg[q2BinIndx]->SetMarkerStyle(7);
+  can[q2BinIndx]->Divide(2,1);
+  can[q2BinIndx]->cd(1);
+  gP5p[q2BinIndx]->Draw("AP");
+  gP5p[q2BinIndx]->SetMarkerStyle(7);
+  gP5p[q2BinIndx]->SetTitle("P5p");
+  can[q2BinIndx]->cd(2);
+  gP1[q2BinIndx]->Draw("AP");
+  gP1[q2BinIndx]->SetMarkerStyle(7);
+  gP1[q2BinIndx]->SetTitle("P1");
+  // can[q2BinIndx]->cd(3);
+  // gA5s[q2BinIndx]->Draw("AP");
+  // gA5s[q2BinIndx]->SetMarkerStyle(7);
+  // gA5s[q2BinIndx]->SetTitle("As5");
+  // can[q2BinIndx]->cd(4);
+  // gSig[q2BinIndx]->Draw("AP");
+  // gSig[q2BinIndx]->SetMarkerStyle(7);
+  // can[q2BinIndx]->cd(5);
+  // gBkg[q2BinIndx]->Draw("AP");
+  // gBkg[q2BinIndx]->SetMarkerStyle(7);
 
-  // can[q2BinIndx]->SaveAs(Form("Data_scan_hprof/like_b%i.pdf",q2BinIndx));
+  can[q2BinIndx]->SaveAs(Form("Data_scan_hprof2/like_b%i.pdf",q2BinIndx));
   return;
 }
 
