@@ -81,7 +81,6 @@ void open (int q2BinIndx, int scanIndx, bool print=false)
 	  }
 	} //else cout<<scanIndx<<" "<<fr->status()<<" "<<fr->covQual()<<endl;
     } else {
-      cout<<scanIndx<<": "<<endl;
       cout<<"(fnc="<<fr->minNll()<<",edm="<<fr->edm()<<",stat="<<fr->status()<<",covQ="<<fr->covQual()<<")"<<endl;
       if (scanIndx%2==0) {
 	cout<<"A5s\t"<<((RooRealVar*)fr->floatParsInit().at(0))->getVal()<<"  \t"<<((RooRealVar*)fr->floatParsFinal().at(0))->getVal()
@@ -113,13 +112,13 @@ void read (int q2BinIndx)
   vP1f.clear();
 
   minNll = 9999999;
-  for (int cnt=0; cnt<800; cnt++) open(q2BinIndx, cnt);
+  for (int cnt=0; cnt<1600; cnt++) open(q2BinIndx, cnt);
   if ( minNll == 9999999 ) {
     // cout<<"Best "<<q2BinIndx<<": no good results"<<endl;
     return;
   }
 
-  cout<<"Best "<<q2BinIndx<<": "<<best<<" ("<<minNll<<"), "<<vLikP1.size()<<", "<<vLikP5p.size()<<" good fits"<<endl;
+  cout<<endl<<"Best "<<q2BinIndx<<": "<<best<<" ("<<minNll<<"), "<<vLikP1.size()<<", "<<vLikP5p.size()<<" good fits"<<endl;
 
   open(q2BinIndx, best, true);
 
