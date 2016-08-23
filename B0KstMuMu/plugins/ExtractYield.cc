@@ -80,7 +80,8 @@ using namespace RooFit;
 // ##########################################
 #define MAKEmumuPLOTS false
 #define SETBATCH      true
-#define PROFILENLL    true //[true= plot the profile likelihood]
+#define PROFILENLL    false //[true= plot the profile likelihood]
+#define PROFILE2D     true //[true= plot the 2D profile likelihood]
 #define PLOT          false //[true= plot the results]
 #define SAVEPOLY      false // ["true" = save bkg polynomial coefficients in new parameter file; "false" = save original values]
 #define SAVEPLOT      false   //2015-08-20
@@ -132,7 +133,7 @@ bool useToyDataset;
 
 bool scanInitVal;
 int scanIndx;
-double scanIndxMax = 800.;
+double scanIndxMax = 90.;
 
 // double maxAs5[9] = {1,1,1,,,,,,};
 // double minAs5[9] = {-1,-1,,,,,,,};
@@ -1268,7 +1269,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString << fitParam->operator[](Utility->GetFitParamIndx("P5pS"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P5pS",1.0,&myString,&value,&errLo,&errHi);
     GetVar(pdf,"P5pS")->setConstant(false);
-    if (!PROFILENLL && scanInitVal) {
+    if (!PROFILENLL && !PROFILE2D && scanInitVal) {
       // double inVal = 100;
       // do {
       // 	inVal = pdf->getVariables()->getRealValue("P5pS")+RooRandom::gaussian(&RG)*scanStep3[q2BinIndx];
@@ -1281,6 +1282,10 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
 	pdf->getVariables()->setRealValue("P5pS", minP5p[q2BinIndx] + (scanIndx-1.)/(scanIndxMax-2.)*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]) );
 	GetVar(pdf,"P5pS")->setConstant(true);
       }
+    }
+    if (PROFILE2D) {
+      pdf->getVariables()->setRealValue("P5pS", minP5p[q2BinIndx] + ((scanIndx-1)%((int)scanIndxMax))/(scanIndxMax-1.)*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]) );
+      GetVar(pdf,"P5pS")->setConstant(true);
     }
 
     //### scan ##
@@ -1298,7 +1303,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString << fitParam->operator[](Utility->GetFitParamIndx("P1S"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P1S",1.0,&myString,&value,&errLo,&errHi);
     GetVar(pdf,"P1S")->setConstant(false);
-    if (!PROFILENLL && scanInitVal) {
+    if (!PROFILENLL && !PROFILE2D && scanInitVal) {
       // double inVal = 100;
       // do {
       // 	inVal = pdf->getVariables()->getRealValue("P1S")+RooRandom::gaussian(&RG)*scanStep2[q2BinIndx];
@@ -1316,6 +1321,10 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
 	if (inVal < -0.8) inVal = -0.8;
 	pdf->getVariables()->setRealValue("P1S", inVal);
       }
+    }
+    if (PROFILE2D) {
+      pdf->getVariables()->setRealValue("P1S", minP1[q2BinIndx] + ((scanIndx-1)/((int)scanIndxMax))/(scanIndxMax-1.)*(maxP1[q2BinIndx]-minP1[q2BinIndx]) );
+      GetVar(pdf,"P1S")->setConstant(true);
     }
     //#scan
     // myString.clear(); myString.str("");
@@ -2716,12 +2725,10 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
 
 
       delete NLL;
-    }
 
-    // ##############
-    // # Save plots #
-    // ##############
-    if (PROFILENLL) {
+      // ##############
+      // # Save plots #
+      // ##############
       for (unsigned int i = 0; i < nCanv; i++)
 	{
 	  myString.clear(); myString.str("");

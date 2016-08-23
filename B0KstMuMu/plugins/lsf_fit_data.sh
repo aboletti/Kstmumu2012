@@ -6,8 +6,8 @@ source  /cvmfs/cms.cern.ch/cmsset_default.sh
 pwd
 eval `scram runtime -sh`
 
-mkdir Data_scan_hprof2
-cd Data_scan_hprof2
+mkdir Data_scan_2dpro
+cd Data_scan_2dpro
 mkdir ${2}
 cd ${2}
 ln -s ../../../efficiency/effKEpdf_out_RT.root . 
