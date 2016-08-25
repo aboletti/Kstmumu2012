@@ -32,6 +32,8 @@ TGraph* g2d3s [9];
 
 TGraph* gBest[9];
 TGraph* gLim[9];
+TGraph* gLimt[9];
+TGraph* gLiml[9];
 
 TCanvas* can[9];
 
@@ -72,7 +74,7 @@ void open (int q2BinIndx, int scanIndx, bool print=false)
     // cout<<endl;
 
     if ( !print ) {
-      if ( fr->status()==0 && fr->covQual()==3 ) if ( true || fr->status()>-1 ) {
+      if ( ( fr->status()==0 && fr->covQual()==3 ) ) if ( true || ( fr->status()>-1 && fr->minNll()<0 && fr->minNll()>-1e5 ) ) {
 	  // if (q2BinIndx>0 || fr->minNll()<-622.040) cout<<q2BinIndx<<" "<<scanIndx<<" "<<fr->minNll()<<endl;
 
 	  vA5s.push_back(((RooRealVar*)fr->floatParsFinal().at(0))->getVal());
@@ -154,6 +156,20 @@ void read (int q2BinIndx)
   fin.ignore(100,'\n');
   for (int i=0; i<nLim[q2BinIndx]; i++) fin>>aP5pLim[i]>>aP1Lim[i];
 
+  double* aP5pLiml = new double[nLim[q2BinIndx]];
+  double* aP1Liml = new double[nLim[q2BinIndx]];
+  fstream finl (Form("pdf_llim%i.list",q2BinIndx),fstream::in);
+  finl.ignore(100,'\n');
+  finl.ignore(100,'\n');
+  for (int i=0; i<nLim[q2BinIndx]; i++) finl>>aP5pLiml[i]>>aP1Liml[i];
+
+  double* aP5pLimt = new double[nLim[q2BinIndx]];
+  double* aP1Limt = new double[nLim[q2BinIndx]];
+  fstream fint (Form("pdf_tlim%i.list",q2BinIndx),fstream::in);
+  fint.ignore(100,'\n');
+  fint.ignore(100,'\n');
+  for (int i=0; i<nLim[q2BinIndx]; i++) fint>>aP5pLimt[i]>>aP1Limt[i];
+
   for (int i=0; i<vLik.size(); i++) {
     if (vLik[i] < minNll+0.5) {
       v1sLik.push_back(vLik[i]);
@@ -169,6 +185,7 @@ void read (int q2BinIndx)
       v3sP5p.push_back(vP5p[i]);
     }
   }
+
 
   double* a1sP5p = new double[v1sP1.size()];
   double* a1sP1  = new double[v1sP1.size()];
@@ -202,7 +219,9 @@ void read (int q2BinIndx)
   // cout<<nLim[q2BinIndx]<<" "<<v2sP1.size()<<" "<<v1sP1.size()<<" "<<v3sP1.size()<<endl;
 
 
-  gLim[q2BinIndx] = new TGraph(nLim[q2BinIndx], aP1Lim, aP5pLim);
+  gLim [q2BinIndx] = new TGraph(nLim[q2BinIndx], aP1Lim , aP5pLim );
+  gLiml[q2BinIndx] = new TGraph(nLim[q2BinIndx], aP1Liml, aP5pLiml);
+  gLimt[q2BinIndx] = new TGraph(nLim[q2BinIndx], aP1Limt, aP5pLimt);
   gBest[q2BinIndx] = new TGraph(1, bestP1, bestP5p);
 
   g2d2s[q2BinIndx] = new TGraph( v2sP1.size(), a2sP1, a2sP5p);
@@ -230,10 +249,16 @@ void read (int q2BinIndx)
   gBest[q2BinIndx]->SetMarkerStyle(34);
   gBest[q2BinIndx]->SetMarkerColor(2);
 
-  gLim[q2BinIndx]->Draw("sameP");
-  gLim[q2BinIndx]->SetMarkerStyle(7);
+  gLim [q2BinIndx]->Draw("sameP");
+  gLim [q2BinIndx]->SetMarkerStyle(7);
+  gLiml[q2BinIndx]->Draw("sameP");
+  gLiml[q2BinIndx]->SetMarkerStyle(7);
+  gLiml[q2BinIndx]->SetMarkerColor(7);
+  gLimt[q2BinIndx]->Draw("sameP");
+  gLimt[q2BinIndx]->SetMarkerStyle(7);
+  gLimt[q2BinIndx]->SetMarkerColor(6);
 
-  can[q2BinIndx]->SaveAs(Form("Data_scan_2dpro/scan2d_b%i.pdf",q2BinIndx));
+  can[q2BinIndx]->SaveAs(Form("Data_scan_2dpro/scan2d_b%i_v3.pdf",q2BinIndx));
 
   // can[q2BinIndx] = new TCanvas (Form("can%i",q2BinIndx),Form("can%i",q2BinIndx));
 
