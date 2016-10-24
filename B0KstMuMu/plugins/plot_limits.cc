@@ -16,7 +16,7 @@ double Swave (double fs, double as, double A5, double ctl, double ctk, double ph
 		A5*sqrt((1-ctk*ctk)*(1-ctl*ctl))*cos(phi));
 }
 
-void plot_limits (int bin)
+void plot_limits (int bin, int effe)
 {
   double flarr[9] = {0.641004  ,0.799186 ,0.619384 ,0.503676 ,0,0.392124   ,0,0.476826 ,0.377081  };
   double fsarr[9] = {0.00196504,0.0101492,0.0113141,0.0227136,0,8.33273e-05,0,0.0108452,0.00948832};
@@ -27,6 +27,8 @@ void plot_limits (int bin)
   double fs = fsarr[bin];
   double as = asarr[bin];
 
+  int max_effe = 3;
+
   // double iP1 = -1 + 0.01*P1indx;
   // cout<<"- "<<iP1<<endl;
   for (double iP1 = -1.; iP1<1.; iP1+=0.01) {
@@ -34,8 +36,9 @@ void plot_limits (int bin)
       // cout<<"* "<<iP5<<endl;
       bool out = false;
       double A5smax = 0.89 * sqrt(3*fs*(1-fs)*ft*(1+iP1));
-      for (double iA5 = -1*A5smax; iA5<=A5smax; iA5+=(A5smax>0?A5smax/2:1)) {
-	out = false;
+      double iA5 = effe * A5smax / max_effe;
+      // for (double iA5 = -1*A5smax; iA5<=A5smax; iA5+=(A5smax>0?A5smax/2:1)) {
+      // 	out = false;
 	// cout<<"+ "<<iA5<<endl;
 	for (double ctk = -1.; ctk<=1; ctk+=0.02) {
 	  for (double ctl =0.; ctl<=1; ctl+=0.02) {
@@ -47,8 +50,8 @@ void plot_limits (int bin)
 	  }
 	  if (out) break;
 	}
-	if (out) break;
-      }
+      // 	if (out) break;
+      // }
       if (!out) {
 	cout<<iP5-0.01<<" "<<iP1<<endl;
 	break;

@@ -38,7 +38,7 @@ vector<double> vLik (0);
 
 void open (int q2BinIndx, int scanIndx, bool print=false)
 {
-  TString filename = Form("Data_scan_test5/%i/Fitresult4_2.root",scanIndx);
+  TString filename = Form("Data_fit/%i/Fitresult4_2.root",scanIndx);
   if ( gSystem->AccessPathName(filename) ) return;
   TFile* f = new TFile(filename);
   if (f) {
@@ -91,7 +91,7 @@ void read (int q2BinIndx)
   vLik.clear();
 
   minNll = 9999999;
-  for (int cnt=600; cnt<800; cnt++) open(q2BinIndx, cnt);
+  for (int cnt=220; cnt<319; cnt++) open(q2BinIndx, cnt);
   if ( minNll == 9999999 ) {
     cout<<"Best "<<q2BinIndx<<": no good results"<<endl;
     return;
@@ -142,7 +142,7 @@ void read (int q2BinIndx)
   // gBkg[q2BinIndx]->Draw("AP");
   // gBkg[q2BinIndx]->SetMarkerStyle(7);
 
-  can[q2BinIndx]->SaveAs(Form("Data_scan_test5/like_b%i.pdf",q2BinIndx));
+  // can[q2BinIndx]->SaveAs(Form("Data_scan_test5/like_b%i.pdf",q2BinIndx));
   return;
 }
 
