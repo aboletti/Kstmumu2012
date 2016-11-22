@@ -40,6 +40,9 @@
 #include <RooFunctorBinding.h>
 #include <RooStats/RooStatsUtils.h>
 #include <RooMinimizer.h>
+#include <RooClassFactory.h>
+#include "AngularRT.h"
+#include "AngularWT.h"
 
 #include <ctime>
 #include <iostream>
@@ -137,6 +140,8 @@ double scanIndxMax = 4.;
 
 double bestP1=0;
 double bestP5p=0;
+
+int As5indx=0;
 
 // double maxAs5[9] = {1,1,1,,,,,,};
 // double minAs5[9] = {-1,-1,,,,,,,};
@@ -321,7 +326,7 @@ RooArgSet vecConstr;
 struct MyProdPdf
 {
   public:
-    MyProdPdf (RooAbsPdf& pdf1, RooAbsPdf& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
+    MyProdPdf (RooAbsReal& pdf1, RooAbsReal& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
   { 
     const RooArgSet* allvar1 = pdf1.getVariables();
     const RooArgSet* allvar2 = pdf2.getVariables();
@@ -352,8 +357,8 @@ struct MyProdPdf
 
 
   private:
-    RooAbsPdf& _pdf1; 
-    RooAbsPdf& _pdf2; 
+    RooAbsReal& _pdf1; 
+    RooAbsReal& _pdf2; 
     RooArgList _vars;
 
 };
@@ -882,12 +887,28 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     cout << myString.str().c_str() << endl;
     if (useEffPDF == true)
     {
-      RooGenericPdf* _AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooGenericPdf* _AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooAbsPdf* _AnglesPDF = RooClassFactory::makePdfInstance("AngularPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      RooAbsPdf* _AnglesPDF = new AngularRT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
       _AnglesPDF->Print("v");
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
-      RooAbsPdf*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
+      RooAbsReal*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
+
+      // TH3D* h3 = new TH3D ("h3","h3",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3->SetBinContent(i,j,k,1+h3->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist dataHist("dataHist","dataHist", RooArgList(*z,*y,*p),Import(*h3,kTRUE));
+      // RooAbsPdf*  EffPdf_R = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),dataHist,0);
+      // TFile* file=TFile::Open("effKEpdf_out_RT.root","READ");
+      // RooAbsPdf*  EffPdf1 = new RooGenericPdf("EffPDF1", "100+ctK",RooArgSet(*VarsAng));
+      // TH3D* h3 = new TH3D ("h3","h3",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3->SetBinContent(i,j,k,1+h3->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist* dataHist = EffPdf1->generateBinned(RooArgSet(*z,*y,*p),10000);
+      // RooHistPdf*  EffPDFm = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),*dataHist,0);
+
+      // RooAbsPdf* EffPdf_R = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
+
       MyProdPdf* myprodpdf = new MyProdPdf (*_AnglesPDF, *EffPdf_R);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
       AnglesPDF  = new RooFunctorPdfBinding("AngleS","Signal * Efficiency",*prodFunctor,myprodpdf->vars());
@@ -896,6 +917,7 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     }
     else 
       AnglesPDF = new RooGenericPdf("AngleS",myString.str().c_str(),RooArgSet(*VarsAng));
+      // AnglesPDF = RooClassFactory::makePdfInstance("AngleS",myString.str().c_str(),RooArgSet(*VarsAng));
   }
   else if ((FitType == 1*10) ||(FitType == 6*10) || (FitType == 206*10) || (FitType == 106*10)) 
   {
@@ -933,11 +955,21 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     cout << myString.str().c_str() << endl;
     if (useEffPDF == true)
     {
-      RooGenericPdf*_AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooGenericPdf*_AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooAbsPdf*_AnglesPDF = RooClassFactory::makePdfInstance("AngularPDFWT",myString.str().c_str(),RooArgSet(*VarsAng));
+      RooAbsPdf* _AnglesPDF = new AngularWT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
-      RooAbsPdf* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
+      RooAbsReal* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
+
+      // TH3D* h3w = new TH3D ("h3w","h3w",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3w->SetBinContent(i,j,k,1+h3w->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist dataHist("dataHist","dataHist", RooArgList(*z,*y,*p),Import(*h3w,kTRUE));
+      // RooAbsPdf*  EffPdf_W = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),dataHist,0);
+      // EffPdf_W->Print("v");
+      // RooAbsPdf*  EffPdf_W = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+
       MyProdPdf* myprodpdf = new MyProdPdf(*_AnglesPDF, *EffPdf_W);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
       AnglesPDF = new RooFunctorPdfBinding("AnglesM","MisTag * Efficiency",*prodFunctor,myprodpdf->vars());
@@ -946,6 +978,7 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     }
     else 
       AnglesPDF = new RooGenericPdf("AngleM",myString.str().c_str(),RooArgSet(*VarsAng));
+      // AnglesPDF = RooClassFactory::makePdfInstance("AngleM",myString.str().c_str(),RooArgSet(*VarsAng));
   }
 
 
@@ -1412,12 +1445,16 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
       // pdf->getVariables()->setRealValue("As5S",1);
       pdf->getVariables()->setRealValue("As5S",0);
     }
-    if (PROFILENLL || PROFILE2D) {
-      pdf->getVariables()->setRealValue("As5S",0.95);
-      if (q2BinIndx==5 || q2BinIndx==7) pdf->getVariables()->setRealValue("As5S",-0.95);
-    }
     GetVar(pdf,"As5S")->setConstant(false);
-
+    if (PROFILENLL || PROFILE2D) {
+      if ( As5indx<1 || As5indx>11 ) {
+	pdf->getVariables()->setRealValue("As5S",0.95);
+	if (q2BinIndx==5 || q2BinIndx==7) pdf->getVariables()->setRealValue("As5S",-0.95);
+      } else {
+	pdf->getVariables()->setRealValue("As5S",-1. + 0.2*(As5indx-1));
+	GetVar(pdf,"As5S")->setConstant(true);
+      }
+    }
 
     // myString.clear(); myString.str("");
     // myString << RooRandom::uniform() * 2. - 1.;
@@ -2403,8 +2440,15 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
     // ###################
 
     cout << "About to fit " << Utility->GetGenericParam("ApplyConstr").c_str() << " " << Utility->GetGenericParam("UseMINOS").c_str() << " " << MINIMIZER << endl;
+
+#if 1
     if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Hesse(false),ExternalConstraints(*vecConstr),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
     else                                                               fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Hesse(false),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
+#else
+    RooAbsReal *nll = (*TotalPDF)->createNLL(*dataSet,Extended(true),Hesse(false),Save(true));
+    double val = nll->getVal();
+    cout<<val<<endl;
+#endif
     
     // RooAbsReal* nll = (*TotalPDF)->createNLL(*dataSet, Extended(true));
     
@@ -3036,7 +3080,7 @@ int main(int argc, char** argv)
         if (argc >= 6)
         {
 	  toyIndx = atoi(argv[5]);
-	  cout<<"aaaaaaaaaaaaaaaaaaaaaa "<<toyIndx<<endl;
+	  // cout<<"aaaaaaaaaaaaaaaaaaaaaa "<<toyIndx<<endl;
           fileIndx = 0;
           if (argc >= 7) tmpFileName = argv[6];
         }
@@ -3049,10 +3093,12 @@ int main(int argc, char** argv)
       }
 
       if (argc>=10)
-      {
+	{
 	bestP1 = atof(argv[8]);
 	bestP5p= atof(argv[9]);
       }
+
+      if (argc>=11) As5indx = atoi(argv[10]);
 
       cout << "\n[ExtractYield::main]\t@@@ Input variables from command line @@@" << endl;
       cout << "- input/outputFile.root = " << fileName.c_str() << endl;
@@ -3064,25 +3110,25 @@ int main(int argc, char** argv)
       cout << "- useEffPDF = "             << useEffPDF << endl;
       cout << "- ParameterFILE = "         << ParameterFILE.c_str() << endl;
 
-      cout << "\n[ExtractYield::main]\t@@@ Internal settings @@@" << endl;
-      cout << "NBINS = "         << NBINS << endl;
-      cout << "MULTYIELD = "     << MULTYIELD << endl;
-      cout << "NCOEFFPOLYBKG = " << NCOEFFPOLYBKG << endl;
+      // cout << "\n[ExtractYield::main]\t@@@ Internal settings @@@" << endl;
+      // cout << "NBINS = "         << NBINS << endl;
+      // cout << "MULTYIELD = "     << MULTYIELD << endl;
+      // cout << "NCOEFFPOLYBKG = " << NCOEFFPOLYBKG << endl;
 
-      cout << "\nMAKEmumuPLOTS = " << MAKEmumuPLOTS << endl;
-      cout << "SETBATCH  = "       << SETBATCH << endl;
-      cout << "PLOT  = "           << PLOT << endl;
-      cout << "SAVEPOLY = "        << SAVEPOLY << endl;
-      cout << "SAVEPLOT = "        << SAVEPLOT << endl;
-      cout << "RESETsigANG = "     << RESETsigANG << endl;
-      cout << "RESETcomANG = "     << RESETcomANG << endl;
-      cout << "FULLTOYS = "        << FULLTOYS << endl;
-      cout << "FUNCERRBAND = "     << FUNCERRBAND << endl;
-      cout << "MINIMIZER = "       << MINIMIZER << endl;
-      cout << "GENPARAMS = "       << GENPARAMS << endl;
+      // cout << "\nMAKEmumuPLOTS = " << MAKEmumuPLOTS << endl;
+      // cout << "SETBATCH  = "       << SETBATCH << endl;
+      // cout << "PLOT  = "           << PLOT << endl;
+      // cout << "SAVEPOLY = "        << SAVEPOLY << endl;
+      // cout << "SAVEPLOT = "        << SAVEPLOT << endl;
+      // cout << "RESETsigANG = "     << RESETsigANG << endl;
+      // cout << "RESETcomANG = "     << RESETcomANG << endl;
+      // cout << "FULLTOYS = "        << FULLTOYS << endl;
+      // cout << "FUNCERRBAND = "     << FUNCERRBAND << endl;
+      // cout << "MINIMIZER = "       << MINIMIZER << endl;
+      // cout << "GENPARAMS = "       << GENPARAMS << endl;
 
-      cout << "\nPARAMETERFILEIN = " << PARAMETERFILEIN << endl;
-      cout << "PARAMETERFILEOUT = "  << PARAMETERFILEOUT << endl;
+      // cout << "\nPARAMETERFILEIN = " << PARAMETERFILEIN << endl;
+      // cout << "PARAMETERFILEOUT = "  << PARAMETERFILEOUT << endl;
 
 
       if (SETBATCH == true)
