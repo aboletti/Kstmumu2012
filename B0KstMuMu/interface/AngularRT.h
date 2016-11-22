@@ -14,6 +14,20 @@
 #include "RooAbsCategory.h"
  
 class AngularRT : public RooAbsPdf {
+protected:
+
+  RooRealProxy ctK ;
+  RooRealProxy ctL ;
+  RooRealProxy phi ;
+  RooRealProxy FsS ;
+  RooRealProxy AsS ;
+  RooRealProxy As5S ;
+  RooRealProxy FlS ;
+  RooRealProxy P1S ;
+  RooRealProxy P5pS ;
+  
+  Double_t evaluate() const ;
+
 public:
   AngularRT() {} ; 
   AngularRT(const char *name, const char *title,
@@ -30,23 +44,7 @@ public:
   virtual TObject* clone(const char* newname) const { return new AngularRT(*this,newname); }
   inline virtual ~AngularRT() { }
 
-protected:
-
-  RooRealProxy ctK ;
-  RooRealProxy ctL ;
-  RooRealProxy phi ;
-  RooRealProxy FsS ;
-  RooRealProxy AsS ;
-  RooRealProxy As5S ;
-  RooRealProxy FlS ;
-  RooRealProxy P1S ;
-  RooRealProxy P5pS ;
-  
-  Double_t evaluate() const ;
-
-private:
-
-  ClassDef(AngularRT,1) // Your description goes here...
+  ClassDef(AngularRT,1) // PDF for angular decay rate description
 };
  
 #endif

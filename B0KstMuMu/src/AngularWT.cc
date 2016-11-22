@@ -8,15 +8,15 @@
 
 #include "Riostream.h" 
 
-#include "AngularRT.h" 
+#include "../interface/AngularWT.h" 
 #include "RooAbsReal.h" 
 #include "RooAbsCategory.h" 
 #include <math.h> 
 #include "TMath.h" 
 
-ClassImp(AngularRT) 
+ClassImp(AngularWT) 
 
- AngularRT::AngularRT(const char *name, const char *title, 
+ AngularWT::AngularWT(const char *name, const char *title, 
                         RooAbsReal& _ctK,
                         RooAbsReal& _ctL,
                         RooAbsReal& _phi,
@@ -40,7 +40,7 @@ ClassImp(AngularRT)
  } 
 
 
- AngularRT::AngularRT(const AngularRT& other, const char* name) :  
+ AngularWT::AngularWT(const AngularWT& other, const char* name) :  
    RooAbsPdf(other,name), 
    ctK("ctK",this,other.ctK),
    ctL("ctL",this,other.ctL),
@@ -56,10 +56,20 @@ ClassImp(AngularRT)
 
 
 
- Double_t AngularRT::evaluate() const 
+ Double_t AngularWT::evaluate() const 
  { 
-   // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-   return (9/(8 * 3.14159265) * (2/3 *(( FsS +  AsS*ctK) * (1-ctL*ctL) +(As5S*0.89*sqrt(3*(FsS)*(1-(FsS))*(1-(FlS))*(1+P1S)))*sqrt((1-ctL*ctL)*(1-ctK*ctK))*cos(phi)) +(1-FsS) * (2 *  FlS * (1-ctL*ctL) * ctK*ctK + 1/2 * (1- FlS) * (1+ctL*ctL)* (1-ctK*ctK) +1/2*P1S*(1-FlS) * (1-ctK*ctK)*(1-ctL* ctL)* cos(2*phi ) + 2*P5pS* cos(phi)*ctK * sqrt(FlS* (1-FlS)*(1-ctK*ctK)*(1-ctL*ctL))))) ; 
+   return (9./(8 * 3.14159265) * (
+				  2./3. * (
+					   ( FsS - AsS*ctK) * (1-ctL*ctL) +
+					   (As5S*0.89*sqrt(3*(FsS)*(1-(FsS))*(1-(FlS))*(1+P1S)))*sqrt((1-ctL*ctL)*(1-ctK*ctK))*cos(phi)
+					   ) +
+				  (1-FsS) * (2 * FlS * (1-ctL*ctL) * ctK*ctK +
+					     0.5 * (1-FlS) * (1+ctL*ctL)* (1-ctK*ctK) +
+					     0.5 * P1S*(1-FlS) * (1-ctK*ctK)*(1-ctL* ctL)* cos(2*phi ) -
+					     2 * P5pS * cos(phi)*ctK * sqrt(FlS* (1-FlS)*(1-ctK*ctK)*(1-ctL*ctL))
+					     )
+				  )
+	   ); 
  } 
 
 

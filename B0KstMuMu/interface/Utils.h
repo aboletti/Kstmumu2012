@@ -18,6 +18,7 @@
 #include <RooRealVar.h>
 #include <RooAbsPdf.h>
 #include <RooHistPdf.h>
+#include <RooHistFunc.h>
 #include <RooFitResult.h>
 #endif
 
@@ -148,8 +149,8 @@ class Utils
 			double* cosAlpha,
 			double* cosAlphaErr);
 #if ROOFIT
-  RooAbsPdf* ReadRTEffPDF (unsigned int q2BinIndx,RooRealVar* z, RooRealVar* y,RooRealVar* p);
-  RooAbsPdf* ReadWTEffPDF (unsigned int q2BinIndx,RooRealVar* z, RooRealVar* y,RooRealVar* p);
+  RooAbsReal* ReadRTEffPDF (unsigned int q2BinIndx,RooRealVar* z, RooRealVar* y,RooRealVar* p);
+  RooAbsReal* ReadWTEffPDF (unsigned int q2BinIndx,RooRealVar* z, RooRealVar* y,RooRealVar* p);
 #endif
 
   void ReadAllBins  (std::string fileName, std::vector<double>* q2Bins, std::vector<double>* cosThetaKBins, std::vector<double>* cosThetaLBins, std::vector<double>* phiBins, std::string signalType = "goodTag");

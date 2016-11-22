@@ -94,29 +94,29 @@ Utils::Utils (bool rightFlavorTag)
   // ################################
   // # Print out internal variables #
   // ################################
-  std::cout << "\n@@@@@@ Utils class settings : private @@@@@@" << std::endl;
-  std::cout << "Analysis environment variable: " << ANALYPATH << std::endl;
-  std::cout << "nFitObserv: "                << nFitObserv << std::endl;
-  std::cout << "ProbThreshold: "             << ProbThreshold << std::endl;
-  std::cout << "scrambleFraction: "          << scrambleFraction << std::endl;
-  std::cout << "DirEfficiency: "             << DirEfficiency << std::endl;
+  // std::cout << "\n@@@@@@ Utils class settings : private @@@@@@" << std::endl;
+  // std::cout << "Analysis environment variable: " << ANALYPATH << std::endl;
+  // std::cout << "nFitObserv: "                << nFitObserv << std::endl;
+  // std::cout << "ProbThreshold: "             << ProbThreshold << std::endl;
+  // std::cout << "scrambleFraction: "          << scrambleFraction << std::endl;
+  // std::cout << "DirEfficiency: "             << DirEfficiency << std::endl;
 
-  std::cout << "\n@@@@@@ Utils class settings : public  @@@@@@" << std::endl;
-  std::cout << "NcoeffThetaL: "              << NcoeffThetaL << std::endl;
-  std::cout << "NcoeffThetaK: "              << NcoeffThetaK << std::endl;
-  std::cout << "NcoeffPhi: "                 << NcoeffPhi << std::endl;
-  std::cout << "RIGHTflavorTAG: "            << RIGHTflavorTAG << std::endl;
-  std::cout << "B0ToKstMuMu: "               << B0ToKstMuMu << std::endl;
-  std::cout << "B0ToJPsiKst: "               << B0ToJPsiKst << std::endl;
-  std::cout << "B0ToPsi2SKst: "              << B0ToPsi2SKst << std::endl;
-  std::cout << "nFitParam: "                 << nFitParam << std::endl;
-  std::cout << "nConfigParam: "              << nConfigParam << std::endl;
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-  std::cout << "@@@ Consider to double-check values for: @@@" << std::endl;
-  std::cout << "- Utils::AddConstraintThetaL" << std::endl;
-  std::cout << "- Utils::AddConstraintThetaKThetaL" << std::endl;
-  std::cout << "- Utils::AddConstraintThetaKThetaLPhi" << std::endl;
-  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  // std::cout << "\n@@@@@@ Utils class settings : public  @@@@@@" << std::endl;
+  // std::cout << "NcoeffThetaL: "              << NcoeffThetaL << std::endl;
+  // std::cout << "NcoeffThetaK: "              << NcoeffThetaK << std::endl;
+  // std::cout << "NcoeffPhi: "                 << NcoeffPhi << std::endl;
+  // std::cout << "RIGHTflavorTAG: "            << RIGHTflavorTAG << std::endl;
+  // std::cout << "B0ToKstMuMu: "               << B0ToKstMuMu << std::endl;
+  // std::cout << "B0ToJPsiKst: "               << B0ToJPsiKst << std::endl;
+  // std::cout << "B0ToPsi2SKst: "              << B0ToPsi2SKst << std::endl;
+  // std::cout << "nFitParam: "                 << nFitParam << std::endl;
+  // std::cout << "nConfigParam: "              << nConfigParam << std::endl;
+  // std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  // std::cout << "@@@ Consider to double-check values for: @@@" << std::endl;
+  // std::cout << "- Utils::AddConstraintThetaL" << std::endl;
+  // std::cout << "- Utils::AddConstraintThetaKThetaL" << std::endl;
+  // std::cout << "- Utils::AddConstraintThetaKThetaLPhi" << std::endl;
+  // std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
 }
 
 double Utils::computeInvMass (double Px1,
@@ -259,7 +259,7 @@ void Utils::computeCosAlpha (double Vx,
 
 #if ROOFIT
 using namespace RooFit;
-RooAbsPdf* Utils::ReadRTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVar* y,RooRealVar* p)
+RooAbsReal* Utils::ReadRTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVar* y,RooRealVar* p)
 {
   cout << "\n[Utils::ReadRTEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@" << endl;
 
@@ -274,7 +274,7 @@ RooAbsPdf* Utils::ReadRTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVa
 
   TString pdfName=Form("pdf_ctKctLphi_q2bin%d",q2BinIndx+1);
   RooHistPdf*  EffPDFm =(RooHistPdf*)file->Get(pdfName);
-  RooHistPdf* EffPDF = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
+  RooHistFunc* EffPDF = new RooHistFunc("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
   // //EffPDF->setInterpolationOrder(1);
   // std::cout << "\n[ExtractYield::ReadRTEffPDF] \t@@@ Reading EFF parameters fit signal" <<  std::endl;  
 
@@ -290,7 +290,7 @@ RooAbsPdf* Utils::ReadRTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVa
   return EffPDF;
 }
 
-RooAbsPdf* Utils::ReadWTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVar* y,RooRealVar* p)
+RooAbsReal* Utils::ReadWTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVar* y,RooRealVar* p)
 {
   cout << "\n[Utils::ReadWTEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@" << endl;
 
@@ -303,7 +303,7 @@ RooAbsPdf* Utils::ReadWTEffPDF (unsigned int q2BinIndx, RooRealVar* z, RooRealVa
   TFile* file=TFile::Open(myString.str().c_str(),"READ");
   TString pdfName=Form("pdf_ctKctLphi_q2bin%d",q2BinIndx+1);
   RooHistPdf* EffPDFm =(RooHistPdf*)file->Get(pdfName);
-  RooHistPdf* EffPDF = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
+  RooHistFunc* EffPDF = new RooHistFunc("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
   // //EffPDF->setInterpolationOrder(1);
 
   // // change variable names
@@ -345,96 +345,96 @@ void Utils::ReadAllBins (std::string fileName, std::vector<double>* q2Bins, std:
   for (unsigned int i = 0; i < ParVector.size(); i++)
   {
     q2Bins->push_back(atof(ParVector[i].c_str()));
-    std::cout << "Bin " << i << "\t" << q2Bins->back() << std::endl;
+    // std::cout << "Bin " << i << "\t" << q2Bins->back() << std::endl;
   }
 
-
-  if (signalType == "goodTag")
-  {
-    // #######################
-    // # Read cosThetaK bins #
-    // #######################
-    std::cout << "\n@@@ cos(theta_K) bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("thetaKokTag"),&ParVector);
-    for (unsigned int i = 0; i < ParVector.size(); i++)
-    {
-      cosThetaKBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << cosThetaKBins->back() << std::endl;
-    }
-
-
-    // #######################
-    // # Read cosThetaL bins #
-    // #######################
-    std::cout << "\n@@@ cos(theta_l) bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("thetaLokTag"),&ParVector);
-    for (unsigned int i = 0; i < ParVector.size(); i++)
-    {
-      cosThetaLBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << cosThetaLBins->back() << std::endl;
-    }
+  if (false) {
+    if (signalType == "goodTag")
+      {
+	// #######################
+	// # Read cosThetaK bins #
+	// #######################
+	std::cout << "\n@@@ cos(theta_K) bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("thetaKokTag"),&ParVector);
+	for (unsigned int i = 0; i < ParVector.size(); i++)
+	  {
+	    cosThetaKBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << cosThetaKBins->back() << std::endl;
+	  }
 
 
-    // #################
-    // # Read phi bins #
-    // #################
-    std::cout << "\n@@@ phi bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("phiokTag"),&ParVector);
-    for (unsigned int i = 0; i < ParVector.size(); i++)
-    {
-      phiBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << phiBins->back() << std::endl;
-    }
+	// #######################
+	// # Read cosThetaL bins #
+	// #######################
+	std::cout << "\n@@@ cos(theta_l) bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("thetaLokTag"),&ParVector);
+	for (unsigned int i = 0; i < ParVector.size(); i++)
+	  {
+	    cosThetaLBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << cosThetaLBins->back() << std::endl;
+	  }
+
+
+	// #################
+	// # Read phi bins #
+	// #################
+	std::cout << "\n@@@ phi bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("phiokTag"),&ParVector);
+	for (unsigned int i = 0; i < ParVector.size(); i++)
+	  {
+	    phiBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << phiBins->back() << std::endl;
+	  }
+      }
+    else if (signalType == "misTag")
+      {
+	// #######################
+	// # Read cosThetaK bins #
+	// #######################
+	std::cout << "\n@@@ cos(theta_K) bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("thetaKmisTag"),&ParVector);
+	for (unsigned int i = 0; i < ParVector.size(); i++)
+	  {
+	    cosThetaKBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << cosThetaKBins->back() << std::endl;
+	  }
+
+
+	// #######################
+	// # Read cosThetaL bins #
+	// #######################
+	std::cout << "\n@@@ cos(theta_l) bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("thetaLmisTag"),&ParVector);
+	for (unsigned int i = 0; 2*i < ParVector.size(); i++)
+	  {
+	    cosThetaLBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << cosThetaLBins->back() << std::endl;
+	  }
+
+
+	// #################
+	// # Read phi bins #
+	// #################
+	std::cout << "\n@@@ phi bins from file @@@" << std::endl;
+	ParVector.clear();
+	ParameterFile->ReadFromFile(ParFileBlockN("phimisTag"),&ParVector);
+	for (unsigned int i = 0; i < ParVector.size(); i++)
+	  {
+	    phiBins->push_back(atof(ParVector[i].c_str()));
+	    std::cout << "Bin " << i << "\t" << phiBins->back() << std::endl;
+	  }
+      }
+    else
+      {
+	std::cout << "[Utils::ReadAllBins]\tError wrong parameter name : " << signalType << std::endl;
+	exit (EXIT_FAILURE);
+      }
   }
-  else if (signalType == "misTag")
-  {
-    // #######################
-    // # Read cosThetaK bins #
-    // #######################
-    std::cout << "\n@@@ cos(theta_K) bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("thetaKmisTag"),&ParVector);
-    for (unsigned int i = 0; i < ParVector.size(); i++)
-    {
-      cosThetaKBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << cosThetaKBins->back() << std::endl;
-    }
-
-
-    // #######################
-    // # Read cosThetaL bins #
-    // #######################
-    std::cout << "\n@@@ cos(theta_l) bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("thetaLmisTag"),&ParVector);
-    for (unsigned int i = 0; 2*i < ParVector.size(); i++)
-    {
-      cosThetaLBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << cosThetaLBins->back() << std::endl;
-    }
-
-
-    // #################
-    // # Read phi bins #
-    // #################
-    std::cout << "\n@@@ phi bins from file @@@" << std::endl;
-    ParVector.clear();
-    ParameterFile->ReadFromFile(ParFileBlockN("phimisTag"),&ParVector);
-    for (unsigned int i = 0; i < ParVector.size(); i++)
-    {
-      phiBins->push_back(atof(ParVector[i].c_str()));
-      std::cout << "Bin " << i << "\t" << phiBins->back() << std::endl;
-    }
-  }
-  else
-  {
-    std::cout << "[Utils::ReadAllBins]\tError wrong parameter name : " << signalType << std::endl;
-    exit (EXIT_FAILURE);
-  }
-
 
   ParVector.clear();
   delete ParameterFile;
@@ -674,18 +674,18 @@ void Utils::ReadFitStartingValues (std::string fileName, std::vector<std::vector
   for (unsigned int i = 0; i < ParVector.size(); i=i+nFitParam+nConfigParam)
   {
 
-    std::cout << "\nRead set-" << static_cast<int>(static_cast<double>(i)/static_cast<double>(nFitParam+nConfigParam)) << " of fit-parameter starting values" << std::endl;
+    // std::cout << "\nRead set-" << static_cast<int>(static_cast<double>(i)/static_cast<double>(nFitParam+nConfigParam)) << " of fit-parameter starting values" << std::endl;
 
     for (unsigned int j = 0; j < nFitParam; j++)
     {
       std::stringstream rawString(ParVector[i+j]);
       vecParam->operator[](j)->push_back(rawString.str());
-      std::cout << "Fit parameter-" << j << " value: " << vecParam->operator[](j)->back() << std::endl;
+      // std::cout << "Fit parameter-" << j << " value: " << vecParam->operator[](j)->back() << std::endl;
     }
     for (unsigned int j = 0; j < nConfigParam; j++)
     {
       configParam->operator[](j)->push_back(atoi(ParVector[i+nFitParam+j].c_str()));
-      std::cout << "Config. parameter-" << j << " value: " << configParam->operator[](j)->back() << std::endl;
+      // std::cout << "Config. parameter-" << j << " value: " << configParam->operator[](j)->back() << std::endl;
     }
   }
 
@@ -1908,7 +1908,7 @@ void Utils::ReadSelectionCuts (std::string fileName)
   for (unsigned int i = 0; i < ParVector.size(); i++)
   {
     SeleCuts.push_back(atof(ParVector[i].c_str()));
-    std::cout << "Selection cut #" << i << " from config file : " << SeleCuts[i] << std::endl;
+    // std::cout << "Selection cut #" << i << " from config file : " << SeleCuts[i] << std::endl;
   }
 
 
@@ -2094,7 +2094,7 @@ void Utils::ReadGenericParam (std::string fileName)
   for (unsigned int i = 0; i < ParVector.size(); i++)
   {
     GenericPars.push_back(ParVector[i]);
-    std::cout << "Generic parameter #" << i << " from config file : " << GenericPars[i].c_str() << std::endl;
+    // std::cout << "Generic parameter #" << i << " from config file : " << GenericPars[i].c_str() << std::endl;
   }
 
 

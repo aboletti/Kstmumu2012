@@ -890,7 +890,25 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       // RooGenericPdf* _AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
       // RooAbsPdf* _AnglesPDF = RooClassFactory::makePdfInstance("AngularPDF",myString.str().c_str(),RooArgSet(*VarsAng));
       RooAbsPdf* _AnglesPDF = new AngularRT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
-      _AnglesPDF->Print("v");
+      // _AnglesPDF->Print("v");
+
+      // _AnglesPDF->printValue(cout);
+      // z->setVal(0.2);
+      // y->setVal(0.5);
+      // p->setVal(0.5);
+      // P1S->setVal(0.1);
+      // P5pS->setVal(0.1);
+      // FlS->setVal(0);
+      // cout<<"------"<<_AnglesPDF->getVal()<<endl;
+      // cout<<"ctK,"<<z->getVal()<<endl;
+      // cout<<"ctL,"<<y->getVal()<<endl;
+      // cout<<"phi,"<<p->getVal()<<endl;
+      // cout<<"FsS,"<<FsS->getVal()<<endl;
+      // cout<<"AsS,"<<AsS->getVal()<<endl;
+      // cout<<"As5S,"<<As5S->getVal()<<endl;
+      // cout<<"FlS,"<<FlS->getVal()<<endl;
+      // cout<<"P1S,"<<P1S->getVal()<<endl;
+      // cout<<"P5pS,"<<P5pS->getVal()<<endl;
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
@@ -958,6 +976,8 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       // RooGenericPdf*_AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
       // RooAbsPdf*_AnglesPDF = RooClassFactory::makePdfInstance("AngularPDFWT",myString.str().c_str(),RooArgSet(*VarsAng));
       RooAbsPdf* _AnglesPDF = new AngularWT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
+
+
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
