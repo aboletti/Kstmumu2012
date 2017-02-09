@@ -165,7 +165,7 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
   grlike[q2BinIndx]->SetTitle("");
 
   minNll = 9999999;
-  for (int cnt=1; cnt<=32; cnt++) {
+  for (int cnt=1; cnt<42; cnt++) {
     // good[cnt-1] = 0;
 
     // cout<<cnt<<endl;
@@ -313,9 +313,10 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
 
   // cout<<"Histo filled"<<endl;
 
+  double tot_prof = hprof_P1[q2BinIndx]->Integral() + hprof_P5[q2BinIndx]->Integral();
   float lastval;
   double prob=0;
-  for (float limit = 1; prob < total*2*0.6827; limit-=0.01) {
+  for (float limit = 1; prob < tot_prof*0.6827; limit-=0.001) {
     if (limit<=0) {
       cout<<"Limit not reached... please check"<<endl;
       break;

@@ -152,6 +152,8 @@ float As5BF[9] = {       1, 0.999115,-0.434302, 0.530473,0,-0.933958,0,0.0524524
 float P1BF [9] = {0.150675,-0.668496, 0.498243,-0.476409,0,-0.453944,0,-0.368363, -0.547864};
 float P5pBF[9] = {0.105585,-0.562285,-0.953227,-0.643975,0, -0.73848,0,-0.646982, -0.549104};
 
+int multFac = 1;
+
 // ####################################
 // # Useful variables from the NTuple #
 // ####################################
@@ -1545,6 +1547,7 @@ void MakeToyDatasets (unsigned int FitType,
 
     int yield=sigYield[i];
     if ((FitType == 1) ||(FitType == 6)) yield+=bkgYield[i];
+    yield = yield*multFac;
     cout << "[MakeToyDatasets]:generating toys. Bin "<< i << " Nev="<< yield << endl;
     RooRandom::randomGenerator()->SetSeed(toyIndx+1);
 
@@ -2871,7 +2874,6 @@ int main(int argc, char** argv)
     {
       ParameterFILE = Utility->MakeAnalysisPATH(PARAMETERFILEIN).c_str();
 
-
       // ###################
       // # Read parameters #
       // ###################
@@ -2907,14 +2909,15 @@ int main(int argc, char** argv)
       // #################################
       if (argc >= 5) specBin = atoi(argv[4]);
       if ((correct4Efficiency == "yesEffCorr")) useEffPDF = true;
-      else if ((correct4Efficiency == "noEffCorr") || (correct4Efficiency == "yesEffCorr"))
-      {
-        if (argc >= 6)
+      // else if ((correct4Efficiency == "noEffCorr") || (correct4Efficiency == "yesEffCorr"))
+      // {
+      if (argc >= 6)
         {
-          fileIndx = atoi(argv[5]);
+          fileIndx = 0;
+	  multFac = atoi(argv[5]);
           if (argc == 7) tmpFileName = argv[6];
         }
-      }
+
       if (argc >= 8) toyIndx = atoi(argv[7]);
       
       if (argc>=10)

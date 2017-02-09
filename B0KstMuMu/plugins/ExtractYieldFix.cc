@@ -18,6 +18,7 @@
 #include <TLatex.h>
 #include <TCutG.h>
 #include <Math/Functor.h>
+#include <TRandom3.h>
 
 #include <TMinuit.h>
 #include <RooRealVar.h>
@@ -30,8 +31,7 @@
 #include <RooPlot.h>
 #include <RooArgSet.h>
 #include <RooFitResult.h>
-#include "RooPolynomial.h"
-#include "RooExponential.h"
+#include <RooPolynomial.h>
 #include <RooMCStudy.h>
 #include <RooMinuit.h>
 #include <RooWorkspace.h>
@@ -40,6 +40,10 @@
 #include <RooDataHist.h>
 #include <RooFunctorBinding.h>
 #include <RooStats/RooStatsUtils.h>
+#include <RooMinimizer.h>
+#include <RooClassFactory.h>
+#include "AngularRT.h"
+#include "AngularWT.h"
 
 #include <ctime>
 #include <iostream>
@@ -65,7 +69,7 @@ using namespace RooFit;
 // # Global constants #
 // ####################
 #define NBINS        20
-#define MULTYIELD     1. // Multiplication factor to the number of entry in toy-MC
+#define MULTYIELD     100. // Multiplication factor to the number of entry in toy-MC
 #define NCOEFFPOLYBKG 5  // Maximum number of coefficients (= degree) of the polynomial describing the combinatorial bkg
 
 #define nJPSIS 230000.0
@@ -75,20 +79,16 @@ using namespace RooFit;
 
 #define _USE_MATH_DEFINES
 
-int sigYield[9] = {84,145,119,225,0,361,0,222,239};
-int bkgYield[9] = {91,289,216,343,0,567,0,178,82};
-//RooRealVar B0mass("B0mass","B_{0} mass",5.27958-0.280,5.27958+0.280);
-string fileNameOutput = "toy";
-
 // ##########################################
 // # Internal flags to control the workflow #
 // ##########################################
 #define MAKEmumuPLOTS false
 #define SETBATCH      true
-#define PROFILENLL    false   //[true= plot the profile likelihood]
-#define PLOT          false  //[true= plot the results]
+#define PROFILENLL    false //[true= plot the profile likelihood]
+#define PROFILE2D     false //[true= plot the 2D profile likelihood]
+#define PLOT          false //[true= plot the results]
 #define SAVEPOLY      false // ["true" = save bkg polynomial coefficients in new parameter file; "false" = save original values]
-#define SAVEPLOT      false //2015-08-20
+#define SAVEPLOT      false   //2015-08-20
 #define RESETsigANG   false // Reset signal angular parameters before starting the fit
 #define RESETcomANG   false // Reset combinatorial bkg angular parameters before starting the fit
 #define FULLTOYS      false // Run generation-and-fit toys
@@ -133,24 +133,48 @@ ofstream fileFitSystematics;
 
 double* q2BinsHisto;
 
-double bestP1=-5;
-double bestP5p=-5;
+bool useToyDataset;
 
-float coeff_ctl_p1[9] = {-0.94024, -0.999251, -0.746712, 1.31074, 0, 1.53294, 0, 1.3881, 0.283786};
-float coeff_ctl_p3[9] = {0, 0, 0, -2.11336, 0, -1.82117, 0, -1.535, 0};
+bool scanInitVal;
+int scanIndx;
+double scanIndxMax = 4.;
 
-float coeff_ctk_p0[9] = {0.462527, -0.885392, -1.3381, -0.550072, 0, -1.06026, 0, -0.145155, 0.218614};
-float coeff_ctk_p1[9] = {1.58702, 0.243571, 1.41569, 0.589272, 0, 1.10164, 0, -0.854784, -0.777978};
-float coeff_ctk_p2[9] = {-2.07989, 0.148541, 1.21027, 0, 0, 0.597256, 0, 0, 0};
-float coeff_ctk_p3[9] = {0, 0.866815, -0.812571, 0, 0, -1.35426, 0, 0, 0};
+double bestP1=0;
+double bestP5p=0;
 
-float coeff_phi_p0[9] = {-1.4662e-01, -1.4662e-01, -1.4662e-01, -1.4662e-01, 0, -1.4662e-01, 0, -1.4662e-01, -1.4662e-01};
+int As5indx=0;
 
-float coeff_mass_tau[9] = {0.210102,0.291326,0.248466,0.469477,0,0.224728,0,0.193928,0.512508};
+// double maxAs5[9] = {1,1,1,,,,,,};
+// double minAs5[9] = {-1,-1,,,,,,,};
+double maxP1 [9] = { 0.85, 0.35, 1.00, 0.00,0,-0.25,0, 0.10,-0.17};
+double minP1 [9] = {-0.65,-1.00,-0.15,-0.90,0,-0.80,0,-0.75,-0.85};
+double maxP5p[9] = { 0.65, 0.50,-0.60,-0.30,0,-0.45,0,-0.35,-0.32};
+double minP5p[9] = {-0.45,-1.10,-1.30,-0.95,0,-0.85,0,-0.95,-0.82};
 
-float As5BF[9] = {       1, 0.999115,-0.434302, 0.530473,0,-0.933958,0,0.0524524,-0.0542194};
-float P1BF [9] = {0.150675,-0.668496, 0.498243,-0.476409,0,-0.453944,0,-0.368363, -0.547864};
-float P5pBF[9] = {0.105585,-0.562285,-0.953227,-0.643975,0, -0.73848,0,-0.646982, -0.549104};
+double scanStep1[9] = {0.0159847,0.0110658,0.0140337,0.00486634,0,0.00471914,0,0.00420572,0.00854125};
+double scanStep2[9] = {0.42,0.67,0.33,0.24,0,0.17,0,0.07,0.22};
+double scanStep3[9] = {0.34,0.38,0.34,0.08,0,0.18,0,0.12,0.19};
+double scanStep4[9] = {0.11,0.08,0.10,0.07,0,0.04,0,0.07,0.07};
+
+double MINhi_P1[9] = {0.457,0.582,0.342,0.264,0,0.159,0,0.22,0.222};
+double MINlo_P1[9] = {0.439,0.422,0.374,0.245,0,0.440,0,0.22,0.205};
+double MINhi_P5[9] = {0.318,0.369,0.179,0.214,0,0.072,0,0.16,0.186};
+double MINlo_P5[9] = {0.326,0.300,0.392,0.190,0,0.277,0,0.16,0.173};
+
+float BFP1 [9] = {0.150675,-0.668496, 0.498243,-0.476409,0,-0.453944,0,-0.368363, -0.547864};
+float BFP5 [9] = {0.105585,-0.562285,-0.953227,-0.643975,0, -0.73848,0,-0.646982, -0.549104};
+
+int totalYieds = 100;
+
+// double scanStep1[9] = {0.0159847,0.0110658,0.0140337,0.00486634,0,0.00471914,0,0.00420572,0.00854125};
+// double scanStep2[9] = {0.0730085,0.321776,0.0728803,0.0316799,0,0.0130877,0,0.1,0.0597653};
+// // double scanStep2[9] = {0.0730085,0.121776,0.0728803,0.0316799,0,0.0130877,0,0.0309526,0.0597653};
+// double scanStep3[9] = {0.0874036,0.105432,0.0627559,0.0272426,0,0.00773635,0,0.0328062,0.0461656};
+// double scanStep4[9] = {0.1,0.1,0.1,0.1,0,0.1,0,0.1,0.1};
+
+// double scanStep1[9] = {0.0163855,0.0106618,0.0148608,0.00756547,0,0.00846779,0,0.00867193,0.0131687};
+// double scanStep2[9] = {0.0739349,0.120751,0.0766692,0.0320697,0,0.0136168,0,0.0521343,0.0497501};
+// double scanStep3[9] = {0.089052,0.113716,0.0625183,0.0328239,0,0.00776573,0,0.0535013,0.0442178};
 
 // ####################################
 // # Useful variables from the NTuple #
@@ -282,6 +306,7 @@ RooAbsPdf* BkgMassAnglePeak;
 RooRealVar* nSig;
 RooRealVar* nMisTagFrac;
 RooRealVar* nBkgPeak;
+RooRealVar* nBkgComb;
 
 // ##################################
 // # Total pdf for B0 --> K*0 mu mu #
@@ -304,7 +329,7 @@ RooArgSet vecConstr;
 struct MyProdPdf
 {
   public:
-    MyProdPdf (RooAbsPdf& pdf1, RooAbsPdf& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
+    MyProdPdf (RooAbsReal& pdf1, RooAbsReal& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
   { 
     const RooArgSet* allvar1 = pdf1.getVariables();
     const RooArgSet* allvar2 = pdf2.getVariables();
@@ -333,9 +358,10 @@ struct MyProdPdf
       return _pdf1.getVal() * _pdf2.getVal();
     }
 
+
   private:
-    RooAbsPdf& _pdf1; 
-    RooAbsPdf& _pdf2; 
+    RooAbsReal& _pdf1; 
+    RooAbsReal& _pdf2; 
     RooArgList _vars;
 
 };
@@ -359,6 +385,7 @@ unsigned int CopyFitResults     (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<
 
 string GeneratePolynomial       (RooRealVar* var, unsigned int nCoef, string sCoef);
 
+void LoadDatasets               (TFile* NtplFile, int specBin, int FitType, int toyIndx);
 void MakeDatasets               (B0KstMuMuSingleCandTreeContent* NTuple, unsigned int FitType);
 
 //###############
@@ -368,17 +395,17 @@ void MakeDatasets               (B0KstMuMuSingleCandTreeContent* NTuple, unsigne
 void InstantiateGen3AnglesFit     (RooAbsPdf** TotalPDF,
                                    bool useEffPDF,
                                    RooRealVar* y, RooRealVar* z,RooRealVar* p,
-                                   unsigned int FitType,
+                                   string fitName, unsigned int FitType,
                                    vector<vector<unsigned int>*>* configParam,
+                                   vector<vector<string>*>* fitParam,
                                    unsigned int q2BinIndx);
-
 void InstantiateReco3AnglesFit (RooAbsPdf** TotalPDF,
                                 bool useEffPDF,
                                 RooRealVar* y, RooRealVar* z,RooRealVar* p,
-                                unsigned int FitType,
+                                string fitName, unsigned int FitType,
                                 vector<vector<unsigned int>*>* configParam,
+                                vector<vector<string>*>* fitParam,
                                 unsigned int q2BinIndx);
-
 RooFitResult* Make3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, RooRealVar* y, RooRealVar* z,RooRealVar* p,  unsigned int FitType, RooArgSet* vecConstr, TCanvas* Canv, unsigned int ID);
 
 void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
@@ -557,7 +584,7 @@ void PrintVariables (RooArgSet* setVar, string type)
   }
   else
   {
-    cout << "[GenerateToys::PrintVariables]\tWrong parameter: " << type << endl;
+    cout << "[ExtractYield::PrintVariables]\tWrong parameter: " << type << endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -793,7 +820,7 @@ void BuildAngularConstraints (RooArgSet* vecConstr, RooAbsPdf* pdf, string varNa
     }
     else if ((varName != "sign") && (varName == "comb") && (varName == "peak"))
     {
-      cout << "[GenerateToys::BuildAngularConstraints]\tWrong parameter: " << varName << endl;
+      cout << "[ExtractYield::BuildAngularConstraints]\tWrong parameter: " << varName << endl;
       exit (EXIT_FAILURE);
     }
   }
@@ -806,11 +833,11 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
   // # p: phi
   // ###################
 {
-  cout << "[MakeAngWithEffPDF]" << endl;
+  cout << "MakeAngWithEffPDF" << endl;
   stringstream myString;
   vector<RooRealVar*> vecParam;
   RooAbsPdf* AnglesPDF = 0;
-  double a,b,c;
+  double a, b, c;
 
   if ((FitType == 1) ||(FitType == 6) || (FitType == 206) || (FitType == 106)) 
   {
@@ -819,7 +846,7 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     // # For correctly tagged events       #
     // #####################################
     FlS  = new RooRealVar("FlS","F_{L}",0.5,0.0,1.0);
-    P5pS = new RooRealVar("P5pS","P_{5p}",0.5,-1.0,1.);
+    P5pS = new RooRealVar("P5pS","P_{5p}",0.5,-10.0,10.);
     P1S = new RooRealVar("P1S","P_{1}",0.0,-1.0,1.);    
     VarsAng->add(*FlS);
     VarsAng->add(*P5pS);
@@ -859,29 +886,63 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       myString << "2*" << "P5pS" <<"* cos(" << p->getPlotLabel()<< ")*" << z->getPlotLabel() << " * sqrt("<< "FlS" << "* (1-" << "FlS" << ")*(1-" << z->getPlotLabel() << "*" << z->getPlotLabel() << ")*(1-" << y->getPlotLabel() << "*" << y->getPlotLabel() << ")))))";
     }
 
-    cout << "\n[GenerateToys::MakeAngWithEffPDF]\t@@@ 3D angular p.d.f. @@@" << endl;
+    cout << "\n[ExtractYield::MakeAngWithEffPDF]\t@@@ 3D angular p.d.f. @@@" << endl;
     cout << myString.str().c_str() << endl;
     if (useEffPDF == true)
     {
-      RooGenericPdf* _AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
-      _AnglesPDF->Print("v");
+      // RooGenericPdf* _AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooAbsPdf* _AnglesPDF = RooClassFactory::makePdfInstance("AngularPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      RooAbsPdf* _AnglesPDF = new AngularRT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
+      // _AnglesPDF->Print("v");
+
+      // _AnglesPDF->printValue(cout);
+      // z->setVal(0.2);
+      // y->setVal(0.5);
+      // p->setVal(0.5);
+      // P1S->setVal(0.1);
+      // P5pS->setVal(0.1);
+      // FlS->setVal(0);
+      // cout<<"------"<<_AnglesPDF->getVal()<<endl;
+      // cout<<"ctK,"<<z->getVal()<<endl;
+      // cout<<"ctL,"<<y->getVal()<<endl;
+      // cout<<"phi,"<<p->getVal()<<endl;
+      // cout<<"FsS,"<<FsS->getVal()<<endl;
+      // cout<<"AsS,"<<AsS->getVal()<<endl;
+      // cout<<"As5S,"<<As5S->getVal()<<endl;
+      // cout<<"FlS,"<<FlS->getVal()<<endl;
+      // cout<<"P1S,"<<P1S->getVal()<<endl;
+      // cout<<"P5pS,"<<P5pS->getVal()<<endl;
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
-      // RooAbsPdf*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
-      // RooAbsPdf*  EffPdf_R = new RooGenericPdf("EffPDF", ("100+"+*(y->getPlotLabel())+"+"+*(z->getPlotLabel())+"+"+*(p->getPlotLabel())).c_str(),RooArgSet(*VarsAng));
-      RooAbsPdf*  EffPdf_R = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+      RooAbsReal*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
+
+      // TH3D* h3 = new TH3D ("h3","h3",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3->SetBinContent(i,j,k,1+h3->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist dataHist("dataHist","dataHist", RooArgList(*z,*y,*p),Import(*h3,kTRUE));
+      // RooAbsPdf*  EffPdf_R = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),dataHist,0);
+      // TFile* file=TFile::Open("effKEpdf_out_RT.root","READ");
+      // RooAbsPdf*  EffPdf1 = new RooGenericPdf("EffPDF1", "100+ctK",RooArgSet(*VarsAng));
+      // TH3D* h3 = new TH3D ("h3","h3",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3->SetBinContent(i,j,k,1+h3->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist* dataHist = EffPdf1->generateBinned(RooArgSet(*z,*y,*p),10000);
+      // RooHistPdf*  EffPDFm = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),*dataHist,0);
+
+      // RooAbsPdf* EffPdf_R = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),EffPDFm->dataHist(),1);
+
       MyProdPdf* myprodpdf = new MyProdPdf (*_AnglesPDF, *EffPdf_R);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
-      AnglesPDF  = new RooFunctorPdfBinding(Form("AngleS_bin%d",q2BinIndx),"Signal * Efficiency",*prodFunctor,myprodpdf->vars());
-      cout << "\n[GenerateToys::MakeAngWithEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@ " << Form("AngleS_bin%d",q2BinIndx) << endl;
+      AnglesPDF  = new RooFunctorPdfBinding("AngleS","Signal * Efficiency",*prodFunctor,myprodpdf->vars());
+      cout << "\n[ExtractYield::MakeAngWithEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@" << endl;
       cout << myString.str().c_str() << endl;
     }
     else 
-      AnglesPDF = new RooGenericPdf(Form("AngleS_bin%d",q2BinIndx),myString.str().c_str(),RooArgSet(*VarsAng));
+      AnglesPDF = new RooGenericPdf("AngleS",myString.str().c_str(),RooArgSet(*VarsAng));
+      // AnglesPDF = RooClassFactory::makePdfInstance("AngleS",myString.str().c_str(),RooArgSet(*VarsAng));
   }
   else if ((FitType == 1*10) ||(FitType == 6*10) || (FitType == 206*10) || (FitType == 106*10)) 
   {
+    cout << "qui" << endl;
     // ####################################
     // # Make 3D angular*fficiency p.d.f. #
     // # For incorrectly tagged events    #
@@ -911,24 +972,36 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       myString << "2*" << "P5pS" <<"* cos(" << p->getPlotLabel()<< ")*" << z->getPlotLabel() << " * sqrt("<<"FlS" << "* (1-" << "FlS" << ")*(1-" << z->getPlotLabel() << "*" << z->getPlotLabel() << ")*(1-" << y->getPlotLabel() << "*" << y->getPlotLabel() << ")))))";
     } 
 
-    cout << "\n[GenerateToys::MakeAngWithEffPDF]\t@@@ 3D angular p.d.f. @@@" << endl;
+    cout << "\n[ExtractYield::MakeAngWithEffPDF]\t@@@ 3D angular p.d.f. @@@" << endl;
     cout << myString.str().c_str() << endl;
     if (useEffPDF == true)
     {
-      RooGenericPdf*_AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooGenericPdf*_AnglesPDF = new RooGenericPdf("_AnglesPDF",myString.str().c_str(),RooArgSet(*VarsAng));
+      // RooAbsPdf*_AnglesPDF = RooClassFactory::makePdfInstance("AngularPDFWT",myString.str().c_str(),RooArgSet(*VarsAng));
+      RooAbsPdf* _AnglesPDF = new AngularWT("_AnglesPDF","_AnglesPDF",*z,*y,*p,*FsS,*AsS,*As5S,*FlS,*P1S,*P5pS);
+
+
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
-      // RooAbsPdf* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
-      RooAbsPdf*  EffPdf_W = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+      RooAbsReal* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
+
+      // TH3D* h3w = new TH3D ("h3w","h3w",120,-1,1,120,0,1,120,0,TMath::Pi());
+      // for (int i=1; i<=120; i++) for (int j=1; j<=120; j++) for (int k=1; k<=120; k++) h3w->SetBinContent(i,j,k,1+h3w->GetXaxis()->GetBinCenter(i)/100.);
+      // RooDataHist dataHist("dataHist","dataHist", RooArgList(*z,*y,*p),Import(*h3w,kTRUE));
+      // RooAbsPdf*  EffPdf_W = new RooHistPdf("EffPDF","EffPDF",RooArgSet(*z,*y,*p),dataHist,0);
+      // EffPdf_W->Print("v");
+      // RooAbsPdf*  EffPdf_W = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+
       MyProdPdf* myprodpdf = new MyProdPdf(*_AnglesPDF, *EffPdf_W);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
-      AnglesPDF = new RooFunctorPdfBinding(Form("AngleM_bin%d",q2BinIndx),"MisTag * Efficiency",*prodFunctor,myprodpdf->vars());
-      cout << "\n[GenerateToys::MakeAngWithEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@" << Form("AngleM_bin%d",q2BinIndx) <<  endl;
+      AnglesPDF = new RooFunctorPdfBinding("AnglesM","MisTag * Efficiency",*prodFunctor,myprodpdf->vars());
+      cout << "\n[ExtractYield::MakeAngWithEffPDF]\t@@@ 3D angular*efficiency p.d.f. @@@" << endl;
       cout << myString.str().c_str() << endl;
     }
     else 
-      AnglesPDF = new RooGenericPdf(Form("AngleM_bin%d",q2BinIndx),myString.str().c_str(),RooArgSet(*VarsAng));
+      AnglesPDF = new RooGenericPdf("AngleM",myString.str().c_str(),RooArgSet(*VarsAng));
+      // AnglesPDF = RooClassFactory::makePdfInstance("AngleM",myString.str().c_str(),RooArgSet(*VarsAng));
   }
 
 
@@ -952,6 +1025,8 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
   unsigned int NCoeffPolyBKGcomb2;
   unsigned int NCoeffPolyBKGpeak3;
   unsigned int NCoeffPolyBKGcomb3;
+
+  TRandom3 RG(scanIndx+1);
 
 
   if (GetVar(pdf,"meanS") != NULL)
@@ -1006,6 +1081,14 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     GetVar(pdf,"fracMassBExp")->setConstant(true);
   }
 
+  if (GetVar(pdf,"nBkgComb") != NULL)
+    {
+      myString.clear(); myString.str("");
+      myString << fitParam->operator[](Utility->GetFitParamIndx("nBkgPeak"))->operator[](q2BinIndx).c_str();
+      SetValueAndErrors(pdf,"nBkgComb",MULTYIELD,&myString,&value,&errLo,&errHi);
+      GetVar(pdf,"nBkgComb")->setConstant(false);
+    }
+  
 
   if (GetVar(pdf,"sigmaMisTag1") != NULL)
   {
@@ -1135,26 +1218,18 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
   }
   if (GetVar(pdf,"nSig") != NULL)
   {
-    //#if you just want to fit the data#
+    // #if you just want to fit the data#
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("nSig"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"nSig",MULTYIELD,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"nSig")->setConstant(true);
-
-    myString.clear(); myString.str("");
-    double sigFrac=0.0;
-    if (sigYield[q2BinIndx]>0 ) sigFrac=sigYield[q2BinIndx]*1./(sigYield[q2BinIndx]+bkgYield[q2BinIndx]);
-    double lo=0, hi=0;
-    cout << "sigFrac " << q2BinIndx << " " << sigFrac << endl;
-    SetValueAndErrors(pdf,"nSig",MULTYIELD,&myString,&sigFrac,&lo,&hi);
-    GetVar(pdf,"nSig")->Print();
+    GetVar(pdf,"nSig")->setConstant(false);
     //#if you want to scan values#
-    /*      myString.clear(); myString.str("");
-            myString << RooRandom::uniform();
-            SetValueAndErrors(pdf,"nSig",MULTYIELD,&myString,&value,&errLo,&errHi);
-            GetVar(pdf,"nSig")->setConstant(false);
-            cout<<"nsig=" << myString.str()<<endl;
-            fileFitResults << "nsig=" << myString.str() << endl;*/
+    // myString.clear(); myString.str("");
+    // myString << RooRandom::uniform(&RG);
+    // SetValueAndErrors(pdf,"nSig",MULTYIELD,&myString,&value,&errLo,&errHi);
+    // GetVar(pdf,"nSig")->setConstant(false);
+    // cout<<"nsig=" << myString.str()<<endl;
+    // fileFitResults << "nsig=" << myString.str() << endl;
   }
 
 
@@ -1168,7 +1243,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
       (NCoeffPolyBKGpeak2 > NCOEFFPOLYBKG) || (NCoeffPolyBKGcomb2 > NCOEFFPOLYBKG) ||
       (NCoeffPolyBKGpeak3 > NCOEFFPOLYBKG) || (NCoeffPolyBKGcomb3 > NCOEFFPOLYBKG))
   {
-    cout << "[GenerateToys::CopyFitResults]\tDegree of poly bkg is not within allowed limits : ";
+    cout << "[ExtractYield::CopyFitResults]\tDegree of poly bkg is not within allowed limits : ";
     cout << NCoeffPolyBKGpeak1 << "\t" << NCoeffPolyBKGcomb1 << "\t" << NCoeffPolyBKGpeak2 << "\t" << NCoeffPolyBKGcomb2 << "\t" << NCoeffPolyBKGpeak3 << "\t" << NCoeffPolyBKGcomb3 << endl;
     exit (EXIT_FAILURE);
   }
@@ -1247,48 +1322,126 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     }
   }
 
-
   if (GetVar(pdf,"FlS") != NULL)
   {
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("FlS"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"FlS",1.0,&myString,&value,&errLo,&errHi);
-    cout << "FlS " << myString << " " << value << endl;
+    // if (scanInitVal) pdf->getVariables()->setRealValue("FlS",pdf->getVariables()->getRealValue("FlS")+RooRandom::gaussian(&RG)*3*scanStep1[q2BinIndx]);
     GetVar(pdf,"FlS")->setConstant(true);
-    GetVar(pdf,"FlS")->Print();
+    if (scanIndx>0) GetVar(pdf,"FlS")->setConstant(false);
   }
+
+  // if (PROFILE2D) {
+  //   char s[200];
+  //   std::fstream fin ("../bestfit.list", std::fstream::in);
+  //   do {
+  //     fin.ignore(200,'\n');
+  //     fin>>bestP1;
+  //   } while ( bestP1 < q2BinIndx );
+  //   fin>>s>>bestP1;
+  //   cout<<"----------------central values:"<<bestP1<<" "<<s<<endl;
+  //   if (bestP1>0) fin>>s>>bestP1>>bestP5p;
+  //   fin.close();
+  //   cout<<"----------------central values:"<<bestP1<<" "<<bestP5p<<endl;
+  // }
+
   if (GetVar(pdf,"P5pS") != NULL)
   {
     myString.clear(); myString.str("");
-    if (bestP5p==-5) myString << P5pBF[q2BinIndx];
-    else myString << bestP5p;
+    myString << fitParam->operator[](Utility->GetFitParamIndx("P5pS"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P5pS",1.0,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"P5pS")->setConstant(true);
+    GetVar(pdf,"P5pS")->setConstant(false);
+    if (!PROFILENLL && !PROFILE2D && scanInitVal) {
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("P5pS")+RooRandom::gaussian(&RG)*scanStep3[q2BinIndx];
+      // } while (inVal<-10. || inVal>10.); 
+      // pdf->getVariables()->setRealValue("P5pS",inVal);
+      // pdf->getVariables()->setRealValue("P5pS",0.8*(RooRandom::uniform(&RG)-1));
+      pdf->getVariables()->setRealValue("P5pS",bestP5p);
+    }
+    if (PROFILENLL) {
+      if (scanIndx%2==1) {
+	pdf->getVariables()->setRealValue("P5pS", minP5p[q2BinIndx] + (scanIndx-1.)/(scanIndxMax-2.)*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]) );
+	GetVar(pdf,"P5pS")->setConstant(true);
+      }
+    }
+    if (PROFILE2D ) {
+      double P5pwidth = 0.88*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]);
+      // pdf->getVariables()->setRealValue("P5pS", minP5p[q2BinIndx] + ((scanIndx-1)%((int)scanIndxMax))/(scanIndxMax-1.)*(maxP5p[q2BinIndx]-minP5p[q2BinIndx]) );
+      pdf->getVariables()->setRealValue("P5pS", bestP5p-0.5*P5pwidth + ((scanIndx-1)%((int)scanIndxMax))/(scanIndxMax-1.)*P5pwidth );
+      GetVar(pdf,"P5pS")->setConstant(true);
+    }
 
     //### scan ##
-    /*   myString.clear(); myString.str("");
-         myString << 2 * RooRandom::uniform()  - 1.;
-         SetValueAndErrors(pdf,"P5pS",1.0,&myString,&value,&errLo,&errHi);
-         GetVar(pdf,"P5pS")->setConstant(false);
-         cout<<"P5p="<<myString.str()<<endl;
-         fileFitResults << "P5p="<<myString.str() << endl;
-         */
+    // myString.clear(); myString.str("");
+    // myString << 2 * RooRandom::uniform(&RG)  - 1.;
+    // SetValueAndErrors(pdf,"P5pS",1.0,&myString,&value,&errLo,&errHi);
+    // GetVar(pdf,"P5pS")->setConstant(false);
+    // cout<<"P5p="<<myString.str()<<endl;
+    // fileFitResults << "P5p="<<myString.str() << endl;
+    
   }
   if (GetVar(pdf,"P1S") != NULL)
   {
     myString.clear(); myString.str("");
-    if (bestP1==-5) myString << P1BF[q2BinIndx];
-    else myString << bestP1;
+    myString << fitParam->operator[](Utility->GetFitParamIndx("P1S"))->operator[](q2BinIndx).c_str();
     SetValueAndErrors(pdf,"P1S",1.0,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"P1S")->setConstant(true);
-    /*    //#scan
-          myString.clear(); myString.str("");
-          myString << 2 * RooRandom::uniform()  - 1.;
-          SetValueAndErrors(pdf,"P1S",1.0,&myString,&value,&errLo,&errHi);
-          GetVar(pdf,"P1S")->setConstant(false);
-          cout<<"P1="<<myString.str()<<endl;
-          fileFitResults << "P1="<<myString.str() << endl;
-          */
+    GetVar(pdf,"P1S")->setConstant(false);
+    if (!PROFILENLL && !PROFILE2D && scanInitVal) {
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("P1S")+RooRandom::gaussian(&RG)*scanStep2[q2BinIndx];
+      // } while (inVal<-1. || inVal>1.); 
+      // pdf->getVariables()->setRealValue("P1S",inVal);
+      // pdf->getVariables()->setRealValue("P1S",0.8-(1.6+2*pdf->getVariables()->getRealValue("P5pS"))*RooRandom::uniform(&RG));
+      pdf->getVariables()->setRealValue("P1S",bestP1);
+    }
+    if (PROFILENLL) {
+      if (scanIndx%2==0) {
+	pdf->getVariables()->setRealValue("P1S", minP1[q2BinIndx] + scanIndx/(scanIndxMax-2.)*(maxP1[q2BinIndx]-minP1[q2BinIndx]) );
+	GetVar(pdf,"P1S")->setConstant(true);
+	pdf->getVariables()->setRealValue("P5pS", -0.5-0.7*pdf->getVariables()->getRealValue("P1S"));
+      } else {
+	double inVal = -0.8-1.3*pdf->getVariables()->getRealValue("P5pS");
+	if (inVal < -0.8) inVal = -0.8;
+	pdf->getVariables()->setRealValue("P1S", inVal);
+      }
+    }
+    if (PROFILE2D) {
+      fstream fin (Form("/lustre/cmswork/boletti/Kstmumu/CMSSW_5_3_28/src/Stefano/B0KstMuMu/plugins/waveP_lim%i.list",q2BinIndx),fstream::in);
+      double aP5pLim [198];
+      double aP1Lim [198];
+      fin.ignore(100,'\n');
+      fin.ignore(100,'\n');
+      for (int i=0; i<198; i++) fin>>aP5pLim[i]>>aP1Lim[i];
+      fin.close();
+      double P1width = 0.5*(MINhi_P1[q2BinIndx]+MINlo_P1[q2BinIndx]);
+      double P5pwidth = 0.5*(MINhi_P5[q2BinIndx]+MINlo_P5[q2BinIndx]);
+      if (bestP1==0) {
+	bestP1  = BFP1[q2BinIndx];
+	bestP5p = BFP5[q2BinIndx];
+      }
+      double xP1, xP5;
+      int indx;
+      do {
+	xP1 = bestP1 + P1width*RooRandom::gaussian(&RG);
+	xP5 = bestP5p + P5pwidth*RooRandom::gaussian(&RG);
+	for (indx=1; indx<198; indx++) if (aP1Lim[indx]>xP1) break;
+      } while ( fabs(xP1) > 1 || fabs(xP5) > fabs( aP5pLim[indx] - (aP1Lim[indx]-xP1) * (aP5pLim[indx]-aP5pLim[indx-1]) / (aP1Lim[indx]-aP1Lim[indx-1]) ) );
+      pdf->getVariables()->setRealValue("P1S", xP1);
+      if (GetVar(pdf,"P5pS") != NULL) pdf->getVariables()->setRealValue("P5pS", xP5);
+      GetVar(pdf,"P1S")->setConstant(true);
+    }
+    //#scan
+    // myString.clear(); myString.str("");
+    // myString << 2 * RooRandom::uniform(&RG)  - 1.;
+    // SetValueAndErrors(pdf,"P1S",1.0,&myString,&value,&errLo,&errHi);
+    // GetVar(pdf,"P1S")->setConstant(false);
+    // cout<<"P1="<<myString.str()<<endl;
+    // fileFitResults << "P1="<<myString.str() << endl;
+    
   }
   if (GetVar(pdf,"FsS") != NULL)
   {
@@ -1296,6 +1449,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString << fitParam->operator[](Utility->GetFitParamIndx("FsS"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"FsS",1.0,&myString,&value,&errLo,&errHi);
     GetVar(pdf,"FsS")->setConstant(true);
+    if (scanIndx>0) GetVar(pdf,"FsS")->setConstant(false);
   }
   if (GetVar(pdf,"AsS") != NULL)
   {
@@ -1303,29 +1457,49 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString << fitParam->operator[](Utility->GetFitParamIndx("AsS"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"AsS",1.0,&myString,&value,&errLo,&errHi);
     GetVar(pdf,"AsS")->setConstant(true);
+    if (scanIndx>0) GetVar(pdf,"AsS")->setConstant(false);
   }
   if (GetVar(pdf,"As5S") != NULL)
   {
     myString.clear(); myString.str("");
-    myString << As5BF[q2BinIndx];
+    myString << fitParam->operator[](Utility->GetFitParamIndx("As5S"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"As5S",1.0,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"As5S")->setConstant(true);
+    if (scanInitVal) {
+      // double inVal = 100;
+      // do {
+      // 	inVal = pdf->getVariables()->getRealValue("As5S")+RooRandom::gaussian(&RG)*scanStep4[q2BinIndx];
+      // } while (inVal<-1. || inVal>1.); 
+      // pdf->getVariables()->setRealValue("As5S",inVal);
+      // pdf->getVariables()->setRealValue("As5S",1);
+      pdf->getVariables()->setRealValue("As5S",0);
+    }
+    pdf->getVariables()->setRealValue("As5S",0.95);
+    if (q2BinIndx==5 || q2BinIndx==7) pdf->getVariables()->setRealValue("As5S",-0.95);
 
-    pdf->getVariables()->setRealValue("As5S",0.99);
-    if (q2BinIndx==5 || q2BinIndx==7) pdf->getVariables()->setRealValue("As5S",-0.99);
+    GetVar(pdf,"As5S")->setConstant(false);
+    if (PROFILENLL || PROFILE2D) {
+      if ( As5indx<1 || As5indx>11 ) {
+	pdf->getVariables()->setRealValue("As5S",0.95);
+	if (q2BinIndx==5 || q2BinIndx==7) pdf->getVariables()->setRealValue("As5S",-0.95);
+      } else {
+	pdf->getVariables()->setRealValue("As5S",-1. + 0.2*(As5indx-1));
+	GetVar(pdf,"As5S")->setConstant(true);
+      }
+    }
 
-    /*      myString.clear(); myString.str("");
-            myString << RooRandom::uniform() * 2. - 1.;
-            SetValueAndErrors(pdf,"As5S",1.0,&myString,&value,&errLo,&errHi);
-            GetVar(pdf,"As5S")->setConstant(false); 
-            cout<<"As5="<<myString.str()<<endl;
-            fileFitResults << "As5="<<myString.str() << endl;
-            */
+    // myString.clear(); myString.str("");
+    // myString << RooRandom::uniform() * 2. - 1.;
+    // SetValueAndErrors(pdf,"As5S",1.0,&myString,&value,&errLo,&errHi);
+    // GetVar(pdf,"As5S")->setConstant(false); 
+    // cout<<"As5="<<myString.str()<<endl;
+    // fileFitResults << "As5="<<myString.str() << endl;
+    
   }
   value = 0.0;
   if (GetVar(pdf,"nSig")         != NULL)  value = value + GetVar(pdf,"nSig")->getVal();
   if (GetVar(pdf,"nMisTagFrac") != NULL) value = value +  GetVar(pdf,"nMisTagFrac")->getVal();
   if (GetVar(pdf,"nBkgPeak")     != NULL)  value = value + GetVar(pdf,"nBkgPeak")->getVal();
+  if (GetVar(pdf,"nBkgComb")     != NULL)  value = value + GetVar(pdf,"nBkgComb")->getVal();
   return value;
 }
 
@@ -1342,11 +1516,40 @@ string GeneratePolynomial (RooRealVar* var, unsigned int nCoef, string sCoef)
     for (unsigned int j = 0; j < i+1; j++) myString << var->getPlotLabel() << "*";
     myString << sCoef << i;
   }
-  cout << "[GenerateToys::GeneratePolynomial]\tI've generated the polynomial: " << myString.str().c_str() << endl;
+  cout << "[ExtractYield::GeneratePolynomial]\tI've generated the polynomial: " << myString.str().c_str() << endl;
 
   return myString.str();
 }
 
+
+
+void LoadDatasets (TFile* NtplFile, int specBin, int FitType, int toyIndx)
+{
+  cout << "LoadDatasets " << Form("toy%i_sig%i",toyIndx,specBin) << endl;
+  RooWorkspace* w = (RooWorkspace*)NtplFile->Get("ws");
+  cout << "RooWorkspace " << w << endl;
+  SingleCandNTuple_RejectPsi = SingleCandNTuple = (RooDataSet*)w->data(Form("toy%i_sig%i",toyIndx,specBin));
+  //if (FitType == 6 ||FitType == 1) SingleCandNTuple_RejectPsi->append(*(RooDataSet*)w->data(Form("toy0_bkg%i",specBin+1)));
+  cout << "ntuple " << SingleCandNTuple->numEntries() << endl;
+  totalYieds = SingleCandNTuple->numEntries();
+
+  // ###########################
+  // # Define useful variables #
+  // ###########################
+  B0MassArb = w->var("B0MassArb");
+  // B0MassArb = w->var("B0mass");
+  ctK       = w->var("ctK");
+  ctL       = w->var("ctL");
+  phi       = w->var("phi");
+
+  // ####################################################
+  // # Setting initial values for independent variables #
+  // ####################################################
+  B0MassArb->setVal(Utility->B0Mass);
+  ctK ->setVal(0.0);
+  ctL->setVal(0.0);
+  phi->setVal(0.0);
+}
 
 
 void MakeDatasets (B0KstMuMuSingleCandTreeContent* NTuple, unsigned int FitType)
@@ -1396,60 +1599,60 @@ void MakeDatasets (B0KstMuMuSingleCandTreeContent* NTuple, unsigned int FitType)
     NTuple->ClearNTuple();
     NTuple->SetBranchAddresses(theTree);
     int nEntries = theTree->GetEntries();
-    cout << "[GenerateToys::MakeDatasets]\t@@@ Total number of events in the tree: " << nEntries << " @@@" << endl;
+    cout << "[ExtractYield::MakeDatasets]\t@@@ Total number of events in the tree: " << nEntries << " @@@" << endl;
     for (int entry = 0; entry < nEntries; entry++)
-    {
-      theTree->GetEntry(entry);
-
-      if ((((FitType == 1) ||(FitType == 6)||(FitType == 106))  &&
-           (NTuple->B0MassArb > Utility->B0Mass - atof(Utility->GetGenericParam("B0MassIntervalLeft").c_str())) &&
-           (NTuple->B0MassArb < Utility->B0Mass + atof(Utility->GetGenericParam("B0MassIntervalRight").c_str())))
-          ||(FitType == 206)
-         )
       {
-        Vars.setRealValue("B0MassArb",         NTuple->B0MassArb);
-        Vars.setRealValue("mumuMass",          NTuple->mumuMass->at(0));
-        Vars.setRealValue("mumuMassE",         NTuple->mumuMassE->at(0));
-        Vars.setRealValue("ctK",      NTuple->CosThetaKArb);
-        Vars.setRealValue("ctL",   fabs(NTuple->CosThetaMuArb));
-        Vars.setRealValue("phi",fabs(NTuple->PhiKstMuMuPlaneArb));
-        Vars.setRealValue("truthMatchSignal",  NTuple->truthMatchSignal->at(0));
-        Vars.setRealValue("rightFlavorTag",    NTuple->rightFlavorTag);
+	theTree->GetEntry(entry);
+	
+	if ((((FitType == 1) ||(FitType == 6)||(FitType == 106))  &&
+	     (NTuple->B0MassArb > Utility->B0Mass - atof(Utility->GetGenericParam("B0MassIntervalLeft").c_str())) &&
+	     (NTuple->B0MassArb < Utility->B0Mass + atof(Utility->GetGenericParam("B0MassIntervalRight").c_str())))
+	    ||(FitType == 206)
+	    )
+	  {
+	    Vars.setRealValue("B0MassArb",         NTuple->B0MassArb);
+	    Vars.setRealValue("mumuMass",          NTuple->mumuMass->at(0));
+	    Vars.setRealValue("mumuMassE",         NTuple->mumuMassE->at(0));
+	    Vars.setRealValue("ctK",      NTuple->CosThetaKArb);
+	    Vars.setRealValue("ctL",   fabs(NTuple->CosThetaMuArb));
+	    Vars.setRealValue("phi",fabs(NTuple->PhiKstMuMuPlaneArb));
+	    Vars.setRealValue("truthMatchSignal",  NTuple->truthMatchSignal->at(0));
+	    Vars.setRealValue("rightFlavorTag",    NTuple->rightFlavorTag);
 
+	    
+	    // ########################
+	    // # NTuple with all data #
+	    // ########################
+	    SingleCandNTuple->add(Vars);
+	    
+	    
+	    // #############################################################################
+	    // # J/psi and psi(2S) rejection based on the event-by-event dimuon mass error #
+	    // #############################################################################
+	    if ((((FitType == 1) || (FitType == 6)) &&
+		 
+		 (((strcmp(CTRLfitWRKflow.c_str(),"trueGoodtag") == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == true)) ||
+		  ((strcmp(CTRLfitWRKflow.c_str(),"trueMistag")  == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == false)) ||
+		  ((strcmp(CTRLfitWRKflow.c_str(),"trueAll")     == 0) && (NTuple->truthMatchSignal->at(0) == true)) ||
+		  (strcmp(CTRLfitWRKflow.c_str(),"allEvts")      == 0)) &&
+		 (Utility->PsiRejection(NTuple->B0MassArb,NTuple->mumuMass->at(0),NTuple->mumuMassE->at(0),"rejectPsi",true) == true)) ||
+		
+		(((FitType == 106))  &&
+		 (((strcmp(CTRLfitWRKflow.c_str(),"trueAll") == 0) && (NTuple->truthMatchSignal->at(0) == true))||
+		  ((strcmp(CTRLfitWRKflow.c_str(),"trueGoodtag") == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == true)) ||
+		  ((strcmp(CTRLfitWRKflow.c_str(),"trueMistag")  == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == false))||
+		  (strcmp(CTRLfitWRKflow.c_str(),"allEvts")      == 0)) &&
+		 
+		 (Utility->PsiRejection(NTuple->B0MassArb,NTuple->mumuMass->at(0),NTuple->mumuMassE->at(0),"rejectPsi",true) == true))
+		)	
 
-        // ########################
-        // # NTuple with all data #
-        // ########################
-        SingleCandNTuple->add(Vars);
-
-
-        // #############################################################################
-        // # J/psi and psi(2S) rejection based on the event-by-event dimuon mass error #
-        // #############################################################################
-        if ((((FitType == 1) || (FitType == 6)) &&
-
-             (((strcmp(CTRLfitWRKflow.c_str(),"trueGoodtag") == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == true)) ||
-              ((strcmp(CTRLfitWRKflow.c_str(),"trueMistag")  == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == false)) ||
-              ((strcmp(CTRLfitWRKflow.c_str(),"trueAll")     == 0) && (NTuple->truthMatchSignal->at(0) == true)) ||
-              (strcmp(CTRLfitWRKflow.c_str(),"allEvts")      == 0)) &&
-             (Utility->PsiRejection(NTuple->B0MassArb,NTuple->mumuMass->at(0),NTuple->mumuMassE->at(0),"rejectPsi",true) == true)) ||
-
-            (((FitType == 106))  &&
-             (((strcmp(CTRLfitWRKflow.c_str(),"trueAll") == 0) && (NTuple->truthMatchSignal->at(0) == true))||
-              ((strcmp(CTRLfitWRKflow.c_str(),"trueGoodtag") == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == true)) ||
-              ((strcmp(CTRLfitWRKflow.c_str(),"trueMistag")  == 0) && (NTuple->truthMatchSignal->at(0) == true) && (NTuple->rightFlavorTag == false))||
-              (strcmp(CTRLfitWRKflow.c_str(),"allEvts")      == 0)) &&
-
-             (Utility->PsiRejection(NTuple->B0MassArb,NTuple->mumuMass->at(0),NTuple->mumuMassE->at(0),"rejectPsi",true) == true))
-            )	
-
-          SingleCandNTuple_RejectPsi->add(Vars);
+	    SingleCandNTuple_RejectPsi->add(Vars);
+	  }
       }
-    }
-    cout << "\n[GenerateToys::MakeDatasets]\t@@@ NTuple with all data @@@" << endl;
+    cout << "\n[ExtractYield::MakeDatasets]\t@@@ NTuple with all data @@@" << endl;
     SingleCandNTuple->Print("v");
 
-    cout << "\n[GenerateToys::MakeDatasets]\t@@@ NTuple without J/psi and psi(2S) regions @@@" << endl;
+    cout << "\n[ExtractYield::MakeDatasets]\t@@@ NTuple without J/psi and psi(2S) regions @@@" << endl;
     SingleCandNTuple_RejectPsi->Print("v");
 
   }
@@ -1460,115 +1663,6 @@ void MakeDatasets (B0KstMuMuSingleCandTreeContent* NTuple, unsigned int FitType)
   ctK ->setVal(0.0);
   ctL->setVal(0.0);
   phi->setVal(0.0);
-}
-
-void MakeToyDatasets (unsigned int FitType,
-                      unsigned int i,
-                      bool useEffPDF,
-                      vector<vector<unsigned int>*>* configParam,
-                      vector<vector<string>*>* fitParam,
-                      int toyIndx)
-{
-  cout << "[MakeToyDatasets] bin " << i << " FitType " << FitType<< endl;
-  stringstream myString;
-
-  //  RooDataSet* SingleCandNTuple;
-
-
-  // ###########################
-  // # Define useful variables #
-  // ###########################
-  B0MassArb          = new RooRealVar("B0MassArb",
-                                      "#font[12]{m}(#font[122]{K}#kern[0.1]{#lower[0.4]{^{#font[122]{+}}}}#kern[-0.3]{#pi}#kern[-0.3]{#lower[0.6]{^{#font[122]{\55}}}}#mu#kern[-0.9]{#lower[0.6]{^{#font[122]{+}}}}#kern[-0.1]{#mu}#kern[-1.3]{#lower[0.6]{^{#font[122]{\55}}}})",
-                                      Utility->B0Mass - atof(Utility->GetGenericParam("B0MassIntervalLeft").c_str()),
-                                      Utility->B0Mass + atof(Utility->GetGenericParam("B0MassIntervalRight").c_str()),
-                                      "GeV");
-  mumuMass           = new RooRealVar("mumuMass","#mu#kern[-0.9]{#lower[0.6]{^{#font[122]{+}}}}#kern[-0.1]{#mu}#kern[-1.3]{#lower[0.6]{^{#font[122]{\55}}}} inv. mass",0.0,6.0,"GeV");
-  mumuMassE          = new RooRealVar("mumuMassE","#mu#kern[-0.9]{#lower[0.6]{^{#font[122]{+}}}}#kern[-0.1]{#mu}#kern[-1.3]{#lower[0.6]{^{#font[122]{\55}}}} inv. mass error",0.0,0.5,"GeV");
-  ctK                = new RooRealVar("ctK","cos#theta_{K}",-1.0,1.0);
-  ctL                = new RooRealVar("ctL","cos#theta_{L}",0.00,1.0);
-  phi                = new RooRealVar("phi","#phi",0.0,Utility->PI);
-  truthMatchSignal   = new RooRealVar("truthMatchSignal","Truth matching",0.0,1.0,"bool");
-  rightFlavorTag     = new RooRealVar("rightFlavorTag","Right flavor tag",0.0,1.0,"bool");
-
-
-  // first I need to get the Pdf
-
-  // One pdf for each bin
-  RooAbsPdf*  TotalPDFq2Bins[q2Bins.size()-1];
-  // Loop over bins
-  cout << "Creating PDF in MakeToyDatasets " << endl;
-  if ((FitType == 106)) {
-    InstantiateReco3AnglesFit(&TotalPDFq2Bins[i],useEffPDF,ctL,ctK,phi,FitType,configParam,i);
-    // Now I'd like to set the physical parameters
-    // #####################
-    // # Initialize p.d.f. #
-    // #####################
-    CopyFitResults(TotalPDFq2Bins[i],i,fitParam);
-
-  }
-  if ((FitType == 206)) {
-    InstantiateGen3AnglesFit(&TotalPDFq2Bins[i],useEffPDF,ctL,ctK,phi,FitType,configParam,i);
-    // Now I'd like to set the physical parameters
-    // #####################
-    // # Initialize p.d.f. #
-    // #####################
-    CopyFitResults(TotalPDFq2Bins[i],i,fitParam);
-  }
-  if ((FitType == 6)) {
-    InstantiateMass3AnglesFit(&TotalPDFq2Bins[i],useEffPDF,B0MassArb,ctL,ctK,phi,Form("TotalPDFq2Bin_%d",i),FitType,configParam,fitParam,i);
-    // Now I'd like to set the physical parameters
-    // #####################
-    // # Initialize p.d.f. #
-    // #####################
-    CopyFitResults(TotalPDFq2Bins[i],i,fitParam);
-  }
-  cout << "TotalPDFq2Bins " << i << endl;
-  TotalPDFq2Bins[i]->SetName(Form("pdf_sig%i",i));
-  TotalPDFq2Bins[i]->Print("v");
-  cout << "Done PDF in MakeToyDatasets " << endl;
-
-  if ((FitType == 1) ||(FitType == 6) || (FitType == 106) || (FitType == 206))
-  {
-    // RooArgSet Vars;
-    // Vars.add(*B0MassArb);
-    // Vars.add(*mumuMass);
-    // Vars.add(*mumuMassE);
-    // Vars.add(*ctK);
-    // Vars.add(*ctL);
-    // Vars.add(*phi);
-    // Vars.add(*truthMatchSignal);
-    // Vars.add(*rightFlavorTag);
-
-    // SingleCandNTuple           = new RooDataSet("SingleCandNTuple"          ,"SingleCandNTuple"          ,Vars);
-    // SingleCandNTuple_RejectPsi = new RooDataSet("SingleCandNTuple_RejectPsi","SingleCandNTuple_RejectPsi",Vars);
-
-    int yield=sigYield[i];
-    if ((FitType == 1) ||(FitType == 6)) yield+=bkgYield[i];
-    cout << "[MakeToyDatasets]:generating toys. Bin "<< i << " Nev="<< yield << endl;
-    RooRandom::randomGenerator()->SetSeed(toyIndx+1);
-
-    
-    RooDataSet* dataSet = TotalPDFq2Bins[i]->generate(RooArgSet(*ctK,*ctL,*phi,*B0MassArb),yield);
-    cout << "[MakeToyDatasets]:done" << endl;
-
-    dataSet->SetName(Form("toy0_sig%i",i));
-    dataSet->SetTitle(Form("Signal dataset for toy %i (bin %i)",toyIndx,i));
-
-    TFile* fout = new TFile( (fileNameOutput+Form("%i.root",i)).c_str(), "UPDATE");
-    RooWorkspace* ws = (RooWorkspace*)fout->Get("ws");
-    if ( !ws ) ws = new RooWorkspace("ws");
-    // ws->import(*TotalPDFq2Bins[i]);
-    // cout << "WS: imported pdf " << i << " name " << TotalPDFq2Bins[i]->GetName() << endl;
-    ws->import(*dataSet);
-    cout << "WS: imported dataset " << dataSet->GetName() << endl;
-    ws->Write(0,TObject::kOverwrite);
-    fout->Close();
-    delete fout;
-    delete dataSet;
-    cout << "[MakeToyDatasets]:saved toys" << endl;
-    cout << "[MakeToyDatasets]:over" << endl;
-  }
 }
 
 
@@ -1605,7 +1699,7 @@ void InstantiateGen3AnglesFit    (RooAbsPdf** TotalPDF,
   if ((FitType == 206)) *TotalPDF = MakeAngWithEffPDF(q2BinIndx,y,z,p,FitType,useEffPDF,VarsAng);
   else
   {
-    cout << "[GenerateToys::InstantiateGen3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal <<  endl;
+    cout << "[ExtractYield::InstantiateGen3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal <<  endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -1653,10 +1747,10 @@ void InstantiateReco3AnglesFit (RooAbsPdf** TotalPDF,
   nMisTagFrac = new RooRealVar("nMisTagFrac","Fraction of mistag",0.0,0.0,1.0);
 
 
-  if ((FitType == 106)) *TotalPDF = new RooAddPdf(Form("SignalRECO_bin%d",q2BinIndx),"AngleS + nMisTag * (AngleMisTag)",RooArgSet(*AngleMisTag,*AngleS),*nMisTagFrac);
+  if ((FitType == 106)) *TotalPDF = new RooAddPdf("SignalRECO","AngleS + nMisTag * (AngleMisTag)",RooArgSet(*AngleMisTag,*AngleS),*nMisTagFrac);
   else
   {
-    cout << "[GenerateToys::InstantiateReco3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal <<  endl;
+    cout << "[ExtractYield::InstantiateReco3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal <<  endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -1695,7 +1789,7 @@ RooFitResult* Make3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, RooReal
     // ###################
     dataSet->Print("v");
 
-    fitResult = (*TotalPDF)->fitTo(*dataSet,Save(true),Minimizer(MINIMIZER),NumCPU(8)); 
+    fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Save(true),Minimizer(MINIMIZER),NumCPU(8)); 
 
     // ###################################################
     // # Set p.d.f. independent variables to known point #
@@ -1854,8 +1948,8 @@ RooFitResult* Make3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, RooReal
 
       string varName;
       RooAbsReal* NLL;
-      if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) NLL = (*TotalPDF)->createNLL(*dataSet,ExternalConstraints(*vecConstr));
-      else                                                               NLL = (*TotalPDF)->createNLL(*dataSet,Extended(0));
+      if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) NLL = (*TotalPDF)->createNLL(*dataSet,Extended(true),ExternalConstraints(*vecConstr));
+      else                                                               NLL = (*TotalPDF)->createNLL(*dataSet,Extended(true));
       //       RooMinuit(*NLL).migrad();
       //       RooMinuit RooMin(*NLL); 
       /*     varName = "FlS";
@@ -1938,12 +2032,10 @@ void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
                                 int specBin,
                                 unsigned int FitType,
                                 vector<double>* q2Bins,
-                                vector<vector<unsigned int>*>* configParam,
-                                vector<vector<string>*>* fitParam,
+                                vector<vector<unsigned int>*>* configParam, vector<vector<string>*>* fitParam,
                                 RooArgSet* vecConstr,
                                 unsigned int ID)
 {
-  if(ID==0) cout << "ID" << endl;;
   // ###################
   // # Local variables #
   // ###################
@@ -1954,16 +2046,28 @@ void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
   RooFitResult* fitResult=0;
 
 
-  cout << "[GenerateToys::IterativeAnglesFitq2Bins]\tInitial number of events :" << dataSet->sumEntries() << endl;
-  TFile f("Fitresult.root","RECREATE") ;
+  cout << "[ExtractYield::IterativeAnglesFitq2Bins]\tInitial number of events :" << dataSet->sumEntries() << endl;
+  string outname = "Fitresult_std.root";
+  if (!useToyDataset) {
+    if (FitType==106) outname = "Fitresult.root";
+    if (FitType==206) outname = "Fitresult2.root";
+  } else {
+    if (FitType==106) outname = "Fitresult1.root";
+    if (FitType==206) outname = "Fitresult3.root";
+  }      
+  TFile f(outname.c_str(),"UPDATE") ;
 
   for (unsigned int i = (specBin == -1 ? 0 : specBin); i < (specBin == -1 ? q2Bins->size()-1 : specBin+1); i++)
   {
     myString.clear(); myString.str("");
     myString << "(mumuMass*mumuMass) > " << q2Bins->operator[](i) << " && (mumuMass*mumuMass) <= " << q2Bins->operator[](i+1);
-    cout << "\n[GenerateToys::IterativeAnglesFitq2Bins]\tCut string: " << myString.str() << endl;
-    dataSet_q2Bins[i] = (RooDataSet*)dataSet->reduce(myString.str().c_str());
-    cout << "[GenerateToys::IterativeAnglesFitq2Bins]\tNumber of events : " << dataSet_q2Bins[i]->sumEntries() << endl;
+    if (!useToyDataset) {
+      cout << "\n[ExtractYield::IterativeAnglesFitq2Bins]\tCut string: " << myString.str() << endl;
+      dataSet_q2Bins[i] = (RooDataSet*)dataSet->reduce(myString.str().c_str());
+    } else {
+      dataSet_q2Bins[i] = (RooDataSet*)dataSet;
+    }
+    cout << "[ExtractYield::IterativeAnglesFitq2Bins]\tNumber of events : " << dataSet_q2Bins[i]->sumEntries() << endl;
 
     if ((FitType == 206))
     {
@@ -1989,8 +2093,8 @@ void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
       // # Perform the fit #
       // ##################
       fitResult = Make3AnglesFit(dataSet_q2Bins[i],&TotalPDFq2Bins[i],y,z,p,FitType,vecConstr,Gen[i],i);
-      if (CheckGoodFit(fitResult) == true) cout << "\n[GenerateToys::Iterative3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
-      else                                 cout << "\n[GenerateToys::Iterative3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
+      if (CheckGoodFit(fitResult) == true) cout << "\n[ExtractYield::Iterative3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
+      else                                 cout << "\n[ExtractYield::Iterative3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
 
     }
 
@@ -2004,13 +2108,13 @@ void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
       unsigned int countGoodTag = 0;
       for (int j = 0; j < static_cast<int>(dataSet_q2Bins[i]->sumEntries()); j++)
       {
-        if (dataSet_q2Bins[i]->get(j)->getRealValue("truthMatchSignal") == true)
+        if (!useToyDataset && dataSet_q2Bins[i]->get(j)->getRealValue("truthMatchSignal") == true)
         {
           if (dataSet_q2Bins[i]->get(j)->getRealValue("rightFlavorTag") == 0.0) countMisTag++;
           else                                                                  countGoodTag++;
         }
       }
-      cout << "[GenerateToys::IterativeMassFitq2Bins]\tDynamic mis-tag fraction : " << static_cast<double>(countMisTag) / static_cast<double>(countMisTag + countGoodTag) << " = (" << countMisTag << "/(" << countMisTag << "+" << countGoodTag << "))" << endl;
+      cout << "[ExtractYield::IterativeMassFitq2Bins]\tDynamic mis-tag fraction : " << static_cast<double>(countMisTag) / static_cast<double>(countMisTag + countGoodTag) << " = (" << countMisTag << "/(" << countMisTag << "+" << countGoodTag << "))" << endl;
 
       myString.clear(); myString.str("");
       myString << "GenTotalPDFq2Bin_" << i;
@@ -2029,10 +2133,10 @@ void Iterative3AnglesFitq2Bins (RooDataSet* dataSet,
       // ##################
       fitResult = Make3AnglesFit(dataSet_q2Bins[i],&TotalPDFq2Bins[i],y,z,p,FitType,vecConstr,Reco[i],i);
       if (CheckGoodFit(fitResult) == true) {
-        cout << "\n[GenerateToys::Iterative3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
+        cout << "\n[ExtractYield::Iterative3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
       }
       else
-        cout << "\n[GenerateToys::Iterative3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
+        cout << "\n[ExtractYield::Iterative3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
     }
 
     // Open new ROOT file save save result 
@@ -2106,24 +2210,17 @@ void InstantiateMass3AnglesFit (RooAbsPdf** TotalPDF,
 
   fracMassS = new RooRealVar("fracMassS","Fraction of signal Gaussian",0.0,0.0,1.0);
 
-  MassS1->Print("v");
-  MassS2->Print("v");
-
   if      (useSignal == 1) MassSignal = new RooGaussian(*((RooGaussian*)MassS1),"MassSignal");
   else if (useSignal == 2) MassSignal = new RooAddPdf("MassSignal","Signal mass pdf",RooArgSet(*MassS1,*MassS2),RooArgSet(*fracMassS));
   else                     MassSignal = NULL;
-
-  MassSignal->Print("v");
 
 
   // ##################################################################
   // # Define angle fit variables and pdf for correctly tagged signal #
   // ##################################################################
   AngleS= MakeAngWithEffPDF(q2BinIndx,y,z,p,FitType,useEffPDF,VarsAng);
-  AngleS->Print("v");
 
   Signal = new RooProdPdf("Signal","Signal Mass*Angle",RooArgSet(*MassSignal,*AngleS));
-  Signal->Print("v");
 
 
   // ###################################################################
@@ -2280,21 +2377,22 @@ void InstantiateMass3AnglesFit (RooAbsPdf** TotalPDF,
   // ###########################
   // # Define pdf coefficients #
   // ###########################
-  nSig     = new RooRealVar("nSig","Fraction of signal events",0.5,0.0,1.0);
+  nSig     = new RooRealVar("nSig","Fraction of signal events",1.0);
+  nBkgComb = new RooRealVar("nBkgComb","Number of comb. background events",1.0);
   RooFormulaVar* nMisTag;
   nMisTagFrac = new RooRealVar("nMisTagFrac","Fraction of mistag",0.0,0.0,1.0);
-  nMisTag     = new RooFormulaVar("nMisTag"," nMisTagFrac / (1 - nMisTagFrac)", RooArgSet(*nSig,*nMisTagFrac));
-  SignalT     = new RooAddPdf("SignalT","Signal + nMisTag * (MassAngleMisTag)",RooArgSet(*MassAngleMisTag,*Signal),*nMisTagFrac) ;
+  nMisTag     = new RooFormulaVar("nMisTag","nSig * nMisTagFrac / (1 - nMisTagFrac)", RooArgSet(*nSig,*nMisTagFrac));
+  SignalT     = new RooAddPdf("SignalT","Signal + nMisTagFrac/(1-nMisTagFrac) * (MassAngleMisTag)",RooArgSet(*MassAngleMisTag,*Signal),*nMisTagFrac) ;
 
   nBkgPeak = new RooRealVar("nBkgPeak","Number of peaking background events",0.0,0.0,1.0);
 
 
   if ((useSignal != 0) && (usePeakB == 0) && (useCombB == 0) && (useMisTag == 0))
     *TotalPDF = new RooProdPdf("Signal","Signal Mass*Angle",RooArgSet(*MassSignal,*AngleS));
-
+    
   else if ((useSignal == 0) && (usePeakB != 0) && (useCombB == 0) && (useMisTag == 0))
     *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*BkgMassAnglePeak),RooArgSet(*nBkgPeak));
-
+    
   else if ((useSignal != 0) && (usePeakB == 0) && (useCombB != 0) && (useMisTag == 0))
     *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*Signal,*BkgMassAngleComb),*nSig);
 
@@ -2304,15 +2402,17 @@ void InstantiateMass3AnglesFit (RooAbsPdf** TotalPDF,
   else if ((useSignal != 0) && (usePeakB != 0) && (useCombB != 0) && (useMisTag == 0))
     *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*Signal,*BkgMassAngleComb,*BkgMassAnglePeak),RooArgList(*nSig,*nBkgPeak));
 
-  else if ((useSignal != 0) && (usePeakB == 0) && (useCombB != 0) && (useMisTag != 0))
-    *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*SignalT,*BkgMassAngleComb),*nSig);
+  else if ((useSignal != 0) && (usePeakB == 0) && (useCombB != 0) && (useMisTag != 0)) {
+    // *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*SignalT,*BkgMassAngleComb),*nSig);
+    *TotalPDF = new RooAddPdf(fitName.c_str(),"Total extended pdf",RooArgSet(*Signal,*MassAngleMisTag,*BkgMassAngleComb),RooArgSet(*nSig,*nMisTag,*nBkgComb));
+  }
 
   else if ((useSignal != 0) && (usePeakB != 0) && (useCombB != 0) && (useMisTag != 0))
     *TotalPDF = new RooAddPdf(fitName.c_str(),"Total pdf",RooArgSet(*SignalT,*BkgMassAngleComb,*BkgMassAnglePeak),RooArgList(*nSig,*nMisTag,*nBkgPeak));
 
   else
   {
-    cout << "[GenerateToys::InstantiateMass3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal << "\tusePeakB = " << usePeakB << "\tuseCombB = " << useCombB << "\tuseMisTag = " << useMisTag << endl;
+    cout << "[ExtractYield::InstantiateMass3AnglesFit]\tIncorrect configuration sequence : useSignal = " << useSignal << "\tusePeakB = " << usePeakB << "\tuseCombB = " << useCombB << "\tuseMisTag = " << useMisTag << endl;
     exit (EXIT_FAILURE);
   }
 }
@@ -2332,6 +2432,15 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
   unsigned int it          = 0;
   TString legNames[6];
 
+  const unsigned int nCanv = 4;
+  TCanvas* localCanv[nCanv];
+  for (unsigned int i = 0; i < nCanv; i++)
+  {
+    myString.clear(); myString.str("");
+    myString << "localCanv" << i;
+    localCanv[i] = new TCanvas(myString.str().c_str(),myString.str().c_str(),20,20,500,500);
+  }
+
   TLegend*   legX             = NULL;
   TLegend*   legY             = NULL;
   TLegend*   legZ             = NULL;
@@ -2344,7 +2453,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
     // ##################
     if (GetVar(*TotalPDF,"nSig") != NULL)
     {
-      cout << "[GenerateToys::MakeMass3AnglesFit]\t@@@ Making comb. angular background sideband  @@@" << endl;
+      cout << "[ExtractYield::MakeMass3AnglesFit]\t@@@ Making comb. angular background sideband  @@@" << endl;
       RooDataSet* sideBands = NULL;
       RooArgSet constrSidebads;
       // #############
@@ -2353,7 +2462,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
       myString.clear(); myString.str("");
       myString << "B0MassArb < " << GetVar(*TotalPDF,"meanS")->getVal() - atof(Utility->GetGenericParam("NSigmaB0").c_str())*Utility->GetB0Width();
       myString << " || B0MassArb > " << GetVar(*TotalPDF,"meanS")->getVal() + atof(Utility->GetGenericParam("NSigmaB0").c_str())*Utility->GetB0Width();
-      cout << "[GenerateToys::MakeMass3AnglesFit]\tCut for B0 sidebands : " << myString.str().c_str() << endl;
+      cout << "[ExtractYield::MakeMass3AnglesFit]\tCut for B0 sidebands : " << myString.str().c_str() << endl;
       sideBands = (RooDataSet*)dataSet->reduce(myString.str().c_str());
       delete sideBands;
       ClearVars(&constrSidebads);
@@ -2363,9 +2472,35 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
     // ###################
 
     cout << "About to fit " << Utility->GetGenericParam("ApplyConstr").c_str() << " " << Utility->GetGenericParam("UseMINOS").c_str() << " " << MINIMIZER << endl;
-    if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) fitResult = (*TotalPDF)->fitTo(*dataSet,ExternalConstraints(*vecConstr),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
-    else                                                               fitResult = (*TotalPDF)->fitTo(*dataSet,Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
 
+#if 1
+    if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Hesse(false),ExternalConstraints(*vecConstr),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
+    else                                                               fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Hesse(false),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER));
+#else
+    RooAbsReal *nll = (*TotalPDF)->createNLL(*dataSet,Extended(true),Hesse(false),Save(true));
+    double val = nll->getVal();
+    cout<<val<<endl;
+#endif
+    
+    // RooAbsReal* nll = (*TotalPDF)->createNLL(*dataSet, Extended(true));
+    
+    // // Manual minimization
+    // RooMinimizer minimizer(*nll);
+    
+    // minimizer.setVerbose(false);
+    // minimizer.setMinimizerType("Minuit2");
+    // // minimizer.optimizeConst(true);
+    // // minimizer.setEps(1e-8)
+    // // minimizer.setStrategy(2);
+    // // minimizer.setPrintEvalErrors(1);
+    // // minimizer.setOffsetting(True);
+    // minimizer.migrad();
+    // minimizer.hesse();
+    // GetVar(*TotalPDF,"As5S")->setError(0.1);
+    // GetVar(*TotalPDF,"P1S" )->setError(0.3);
+    // GetVar(*TotalPDF,"P5pS")->setError(0.3);
+    // minimizer.minos();
+    // fitResult = minimizer.save();
 
     // ###################################################
     // # Set p.d.f. independent variables to known point #
@@ -2381,6 +2516,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
     // #####################
     if (PLOT)
     {
+      cout << "[ExtractYield::MakeMass3AnglesFit]\tPlot mass" << endl;
       TCanvas* Canv = new TCanvas("Canv","Canv",1200,900);
       Canv->Divide(2,2);
       Canv->cd(1);
@@ -2450,6 +2586,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
       // ##########################
       // # Angular-1 plot results #
       // ##########################
+      cout << "[ExtractYield::MakeMass3AnglesFit]\tPlot angle 1" << endl;
       Canv->cd(2);
       RooPlot* myFrameY = y->frame(NBINS);
 
@@ -2512,6 +2649,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
       // ##########################
       // # Angular-2 plot results #
       // ##########################
+      cout << "[ExtractYield::MakeMass3AnglesFit]\tPlot angle 2" << endl;
       Canv->cd(3);
       RooPlot* myFrameZ = z->frame(NBINS);
 
@@ -2573,6 +2711,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
       // ##########################
       // # Angular-3 plot results #
       // ##########################
+      cout << "[ExtractYield::MakeMass3AnglesFit]\tPlot angle 3" << endl;
       Canv->cd(4);
       RooPlot* myFrameP = p->frame(NBINS);
 
@@ -2638,24 +2777,102 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
         delete legZ;
         delete legP;
       }
+
+      Canv->Modified();
+      Canv->Update();
+      if (SAVEPLOT == true)
+	{
+	  
+	  myString.clear(); myString.str("");
+	  myString << (*TotalPDF)->getPlotLabel() << "_Canv" << ID << ".pdf";
+	  Canv->Print(myString.str().c_str());
+	  
+	  myString.clear(); myString.str("");
+	  myString << (*TotalPDF)->getPlotLabel() << "_Canv" << ID << ".root";
+	  Canv->Print(myString.str().c_str());
+	}
+
+    }
+    // ###################
+    // # Profiling scan  # (old style)
+    // ###################
+    if (PROFILENLL == true && false)
+    {
+
+      string varName;
+      RooAbsReal* NLL;
+      if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) NLL = (*TotalPDF)->createNLL(*dataSet,Extended(true),ExternalConstraints(*vecConstr));
+      else                                                               NLL = (*TotalPDF)->createNLL(*dataSet,Extended(true));
+      
+      // RooMinimizer RooMin(*NLL);
+      // RooMin.minimize(...);
+      
+      
+      //       RooMinuit(*NLL).migrad();
+      //       RooMinuit RooMin(*NLL); 
+      varName = "As5S";
+      // GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorLo() * atof(Utility->GetGenericParam("NSigmaB0").c_str()),
+      //                                             GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorHi() * atof(Utility->GetGenericParam("NSigmaB0").c_str()));
+      GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal()-0.1, GetVar(*TotalPDF,varName.c_str())->getVal()+0.1);
+      localCanv[0]->cd();
+      RooPlot* myFrameNLLVar1 = GetVar(*TotalPDF,varName.c_str())->frame();
+      NLL->plotOn(myFrameNLLVar1, ShiftToZero());
+      RooAbsReal* var1Profile = NLL->createProfile(*(GetVar(*TotalPDF,varName.c_str())));
+      var1Profile->plotOn(myFrameNLLVar1, LineColor(kRed));
+      myFrameNLLVar1->SetMinimum(0);
+      myFrameNLLVar1->SetMaximum(5);
+      DrawString(LUMI,myFrameNLLVar1);
+      myFrameNLLVar1->DrawClone();
+
+      varName = "P5pS";
+      // GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorLo() * atof(Utility->GetGenericParam("NSigmaB0").c_str()),
+      //                                             GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorHi() * atof(Utility->GetGenericParam("NSigmaB0").c_str()));
+      
+      GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal()-0.3, GetVar(*TotalPDF,varName.c_str())->getVal()+0.3);
+      localCanv[1]->cd();
+      RooPlot* myFrameNLLVar2 = GetVar(*TotalPDF,varName.c_str())->frame();
+      NLL->plotOn(myFrameNLLVar2, ShiftToZero());
+      RooAbsReal* var2Profile = NLL->createProfile(*(GetVar(*TotalPDF,varName.c_str())));
+      var2Profile->plotOn(myFrameNLLVar2, LineColor(kRed));
+      myFrameNLLVar2->SetMinimum(0);
+      myFrameNLLVar2->SetMaximum(5);
+      DrawString(LUMI,myFrameNLLVar2);
+      myFrameNLLVar2->DrawClone();
+
+      varName = "P1S";
+      // GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorLo() * atof(Utility->GetGenericParam("NSigmaB0").c_str()),
+      //                                             GetVar(*TotalPDF,varName.c_str())->getVal() + GetVar(*TotalPDF,varName.c_str())->getErrorHi() * atof(Utility->GetGenericParam("NSigmaB0").c_str()));
+      GetVar(*TotalPDF,varName.c_str())->setRange(GetVar(*TotalPDF,varName.c_str())->getVal()-0.3, GetVar(*TotalPDF,varName.c_str())->getVal()+0.3);
+      localCanv[2]->cd();
+      RooPlot* myFrameNLLVar3 = GetVar(*TotalPDF,varName.c_str())->frame();
+      NLL->plotOn(myFrameNLLVar3, ShiftToZero());
+      RooAbsReal* var3Profile = NLL->createProfile(*(GetVar(*TotalPDF,varName.c_str())));
+      var3Profile->plotOn(myFrameNLLVar3, LineColor(kRed));
+      myFrameNLLVar3->SetMinimum(0);
+      myFrameNLLVar3->SetMaximum(5);
+      DrawString(LUMI,myFrameNLLVar3);
+      myFrameNLLVar3->DrawClone();
+
+
+      delete NLL;
+
       // ##############
       // # Save plots #
       // ##############
-      Canv->Modified();
-      Canv->Update();
-
-      if (SAVEPLOT == true)
-      {
-        myString.clear(); myString.str("");
-        myString << (*TotalPDF)->getPlotLabel() << "_Canv" << ID << ".pdf";
-        Canv->Print(myString.str().c_str());
-
-        myString.clear(); myString.str("");
-        myString << (*TotalPDF)->getPlotLabel() << "_Canv" << ID << ".root";
-        Canv->Print(myString.str().c_str());
-      }
+      for (unsigned int i = 0; i < nCanv; i++)
+	{
+	  myString.clear(); myString.str("");
+	  myString << (*TotalPDF)->getPlotLabel() << "_localCanv" << i << "_" << ID << ".pdf";
+	  localCanv[i]->Print(myString.str().c_str());
+	  
+	  myString.clear(); myString.str("");
+	  myString << (*TotalPDF)->getPlotLabel() << "_localCanv" << i << "_" << ID << ".root";
+	  localCanv[i]->Print(myString.str().c_str());
+	
+	}
     }
   }
+  
   return fitResult;
 }
 
@@ -2681,7 +2898,7 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
 
   TPaveText*  extText[q2Bins->size()-1];
 
-  RooFitResult* fitResult;
+  RooFitResult* fitResult=0;
 
 
   for (unsigned int i = (specBin == -1 ? 0 : specBin); i < (specBin == -1 ? q2Bins->size()-1 : specBin+1); i++)
@@ -2698,9 +2915,13 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
 
     myString.clear(); myString.str("");
     myString << "(mumuMass*mumuMass) > " << q2Bins->operator[](i) << " && (mumuMass*mumuMass) <= " << q2Bins->operator[](i+1);
-    cout << "\n[GenerateToys::IterativeMass3AnglesFitq2Bins]\tCut string: " << myString.str() << endl;
-    dataSet_q2Bins[i] = (RooDataSet*)dataSet->reduce(myString.str().c_str());
-    cout << "[GenerateToys::IterativeMass3AnglesFitq2Bins]\tNumber of events : " << dataSet_q2Bins[i]->sumEntries() << endl;
+    if (!useToyDataset) {
+      cout << "\n[ExtractYield::IterativeMass3AnglesFitq2Bins]\tCut string: " << myString.str() << endl;
+      dataSet_q2Bins[i] = (RooDataSet*)dataSet->reduce(myString.str().c_str());
+    } else {
+      dataSet_q2Bins[i] = (RooDataSet*)dataSet;
+    }
+    cout << "[ExtractYield::IterativeMass3AnglesFitq2Bins]\tNumber of events : " << dataSet_q2Bins[i]->sumEntries() << endl;
 
     unsigned int countMisTag  = 0;
     unsigned int countGoodTag = 0;
@@ -2712,7 +2933,7 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
         else                                                                  countGoodTag++;
       }
     }
-    cout << "[GenerateToys::IterativeMassFitq2Bins]\tDynamic mis-tag fraction : " << static_cast<double>(countMisTag) / static_cast<double>(countMisTag + countGoodTag) << " = (" << countMisTag << "/(" << countMisTag << "+" << countGoodTag << "))" << endl;
+    cout << "[ExtractYield::IterativeMassFitq2Bins]\tDynamic mis-tag fraction : " << static_cast<double>(countMisTag) / static_cast<double>(countMisTag + countGoodTag) << " = (" << countMisTag << "/(" << countMisTag << "+" << countGoodTag << "))" << endl;
 
 
     myString.clear(); myString.str("");
@@ -2724,7 +2945,7 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
       //################
       // # scan values #
       //################
-      for (int scan = 0; scan < 200; scan++)
+      for (int scan = 0; scan < 1; scan++)
       {   
         // #####################
         // # Initialize p.d.f. #
@@ -2750,12 +2971,12 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
         fileFitResults << "nll=" << nll << endl;
         if (CheckGoodFit(fitResult) == true) 
         {
-          cout << "\n[GenerateToys::IterativeMass3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
+          cout << "\n[ExtractYield::IterativeMass3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
           fileFitResults << "Fit converged " << endl;
         }
         else    
         {
-          cout << "\n[GenerateToys::IterativeMass3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
+          cout << "\n[ExtractYield::IterativeMass3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
           fileFitResults << "Fit didn't converge " << endl;
         }
       }
@@ -2784,64 +3005,27 @@ void IterativeMass3AnglesFitq2Bins (RooDataSet* dataSet,
       // # Perform the fit #
       // ##################
       fitResult = MakeMass3AnglesFit(dataSet_q2Bins[i],&TotalPDFq2Bins[i],x,y,z,p,FitType,vecConstr,extText[i],ID);
-      if (CheckGoodFit(fitResult) == true) cout << "\n[GenerateToys::IterativeMass3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
-      else                                 cout << "\n[GenerateToys::IterativeMass3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
+      if (CheckGoodFit(fitResult) == true) cout << "\n[ExtractYield::IterativeMass3AnglesFitq2Bins]\t@@@ Fit converged ! @@@" << endl;
+      else                                 cout << "\n[ExtractYield::IterativeMass3AnglesFitq2Bins]\t@@@ Fit didn't converge ! @@@" << endl;
     }
+
+    // Open new ROOT file save save result 
+    string outname = "Fitresult_std_2.root";
+    if (!useToyDataset) {
+      if (FitType==6)   outname = "Fitresult4_2.root";
+      if (FitType==1)   outname = "Fitresult6_2.root";
+    } else {
+      if (FitType==6)   outname = "Fitresult5_2.root";
+      if (FitType==1)   outname = "Fitresult7_2.root";
+    }      
+    TFile f(outname.c_str(),"UPDATE") ;
+    f.cd();
+    if (fitResult /*&& CheckGoodFit(fitResult) == true*/) fitResult->Write(Form("fitResult_Bin%d",i),TObject::kWriteDelete) ;
+    f.Close() ;
   }
 
 }
 
-void GenerateBkg ( int toyIndx, unsigned int q2BinIndx )
-{
-  cout << "[GenerateBkg] " << q2BinIndx << " " << bkgYield[q2BinIndx] << endl;
-  RooRealVar ctk_p0(Form("ctk%i_p0",q2BinIndx),"ctk_p0",coeff_ctk_p0[q2BinIndx]);
-  RooRealVar ctk_p1(Form("ctk%i_p1",q2BinIndx),"ctk_p1",coeff_ctk_p1[q2BinIndx]);
-  RooRealVar ctk_p2(Form("ctk%i_p2",q2BinIndx),"ctk_p2",coeff_ctk_p2[q2BinIndx]);
-  RooRealVar ctk_p3(Form("ctk%i_p3",q2BinIndx),"ctk_p3",coeff_ctk_p3[q2BinIndx]);
-  
-  RooRealVar ctl_p0(Form("ctl%i_p0",q2BinIndx),"ctl_p0",0);
-  RooRealVar ctl_p1(Form("ctl%i_p1",q2BinIndx),"ctl_p1",coeff_ctl_p1[q2BinIndx]);
-  RooRealVar ctl_p2(Form("ctl%i_p2",q2BinIndx),"ctl_p2",0);
-  RooRealVar ctl_p3(Form("ctl%i_p3",q2BinIndx),"ctl_p3",coeff_ctl_p3[q2BinIndx]);
-  
-  RooRealVar phi_p0(Form("phi%i_p0",q2BinIndx),"phi_p0",coeff_phi_p0[q2BinIndx]);
-
-  RooRealVar mass_c(Form("mass%i_c",q2BinIndx),"mass_c",-1./coeff_mass_tau[q2BinIndx]);
-
-  RooPolynomial ctk_pdf(Form("ctk_pdf%i",q2BinIndx),"ctk_pdf",*ctK,RooArgList(ctk_p0,ctk_p1,ctk_p2,ctk_p3));
-  RooPolynomial ctl_pdf(Form("ctl_pdf%i",q2BinIndx),"ctl_pdf",*ctL,RooArgList(ctl_p0,ctl_p1,ctl_p2,ctl_p3));
-  RooPolynomial phi_pdf(Form("phi_pdf%i",q2BinIndx),"phi_pdf",*phi,RooArgList(phi_p0));
-  RooExponential m_pdf(Form("m_pdf%i",q2BinIndx),"m_pdf",*B0MassArb,mass_c);
-
-  RooProdPdf bkg_pdf(Form("pdf_bkg%i",q2BinIndx),Form("Background PDF (bin %i)",q2BinIndx),RooArgSet(ctk_pdf,ctl_pdf,phi_pdf,m_pdf));
-
-  RooRandom::randomGenerator()->SetSeed(toyIndx+1);
-  cout << "[GenerateBkg]:SeedSet" << endl;
-
-  RooDataSet* dataSet = bkg_pdf.generate(RooArgSet(*ctK,*ctL,*phi,*B0MassArb),bkgYield[q2BinIndx]);
-  cout << "[GenerateBkg]:Generated " <<  endl;
-  dataSet->SetName(Form("toy%i_bkg%i",toyIndx,q2BinIndx));
-  dataSet->SetTitle(Form("Background dataset for toy %i (bin %i)",toyIndx,q2BinIndx));
-  dataSet->Print("v");
-  
-  TFile* fout = new TFile(fileNameOutput.c_str(), "UPDATE");
-  
-  // RooWorkspace* ws_b = new RooWorkspace(Form("ws%i_b%i",toyIndx,q2BinIndx)) ;
-  // ws_b->import(*dataSet);
-  // ws_b->Write(0,TObject::kOverwrite);
-  
-  RooWorkspace* ws = (RooWorkspace*)fout->Get("ws");
-
-  if ( !ws ) ws = new RooWorkspace("ws");
-  ws->import(bkg_pdf);
-  ws->import(*dataSet);
-  ws->Write(0);
-  
-  fout->Close();
-  delete fout;
-  delete dataSet;
-  cout << "[GenerateBkg]: Done" << endl;
-}
 
 int main(int argc, char** argv)
 {
@@ -2857,13 +3041,29 @@ int main(int argc, char** argv)
     string tmpFileName        = "";
 
     int specBin               = -1;
+    int toyIndx     = 0;
     unsigned int fileIndx     = 0;
     unsigned int FitType      = atoi(argv[1]);
-    int toyIndx               = 0;
+
+    scanInitVal               = false;
+    scanIndx                  = 0;
 
     bool useEffPDF            = false;
 
     TFile* NtplFile           = NULL;
+
+    useToyDataset        = false;
+
+    if (FitType == 116)
+    {
+      FitType = 106;
+      useToyDataset = true;
+    }
+    if (FitType == 16)
+    {
+      FitType = 6;
+      useToyDataset = true;
+    }
 
 
     if (((FitType == 1) ||(FitType == 6) || (FitType == 106) || (FitType== 206)) && (argc >= 4))
@@ -2897,7 +3097,7 @@ int main(int argc, char** argv)
       // ###################################
       if ((correct4Efficiency != "noEffCorr") && (correct4Efficiency != "yesEffCorr"))
       {
-        cout << "[GenerateToys::main]\tIncorrect option parameter " << correct4Efficiency << endl;
+        cout << "[ExtractYield::main]\tIncorrect option parameter " << correct4Efficiency << endl;
         exit (EXIT_FAILURE);
       }
 
@@ -2907,23 +3107,32 @@ int main(int argc, char** argv)
       // #################################
       if (argc >= 5) specBin = atoi(argv[4]);
       if ((correct4Efficiency == "yesEffCorr")) useEffPDF = true;
-      else if ((correct4Efficiency == "noEffCorr") || (correct4Efficiency == "yesEffCorr"))
+      if ((correct4Efficiency == "noEffCorr") || (correct4Efficiency == "yesEffCorr"))
       {
         if (argc >= 6)
         {
-          fileIndx = atoi(argv[5]);
-          if (argc == 7) tmpFileName = argv[6];
+	  scanIndx = atoi(argv[5]);
+	  // cout<<"aaaaaaaaaaaaaaaaaaaaaa "<<toyIndx<<endl;
+          // fileIndx = 0;
+          if (argc >= 7) tmpFileName = argv[6];
         }
       }
-      if (argc >= 8) toyIndx = atoi(argv[7]);
-      
-      if (argc>=10)
+
+      if (argc>=8)
       {
+	scanInitVal = true;
+	scanIndx = atoi(argv[7]);
+      }
+
+      if (argc>=10)
+	{
 	bestP1 = atof(argv[8]);
 	bestP5p= atof(argv[9]);
       }
 
-      cout << "\n[GenerateToys::main]\t@@@ Input variables from command line @@@" << endl;
+      if (argc>=11) As5indx = atoi(argv[10]);
+
+      cout << "\n[ExtractYield::main]\t@@@ Input variables from command line @@@" << endl;
       cout << "- input/outputFile.root = " << fileName.c_str() << endl;
       cout << "- correct4Efficiency = "    << correct4Efficiency << endl;
       cout << "- tmpFileName = "           << tmpFileName.c_str() << endl;
@@ -2931,33 +3140,32 @@ int main(int argc, char** argv)
       cout << "- fileIndx = "              << fileIndx << endl;
       cout << "- FitType = "               << FitType << endl;
       cout << "- useEffPDF = "             << useEffPDF << endl;
-      cout << "- toyIndx = "               << toyIndx << endl;
       cout << "- ParameterFILE = "         << ParameterFILE.c_str() << endl;
 
-      cout << "\n[GenerateToys::main]\t@@@ Internal settings @@@" << endl;
-      cout << "NBINS = "         << NBINS << endl;
-      cout << "MULTYIELD = "     << MULTYIELD << endl;
-      cout << "NCOEFFPOLYBKG = " << NCOEFFPOLYBKG << endl;
+      // cout << "\n[ExtractYield::main]\t@@@ Internal settings @@@" << endl;
+      // cout << "NBINS = "         << NBINS << endl;
+      // cout << "MULTYIELD = "     << MULTYIELD << endl;
+      // cout << "NCOEFFPOLYBKG = " << NCOEFFPOLYBKG << endl;
 
-      cout << "\nMAKEmumuPLOTS = " << MAKEmumuPLOTS << endl;
-      cout << "SETBATCH  = "       << SETBATCH << endl;
-      cout << "PLOT  = "           << PLOT << endl;
-      cout << "SAVEPOLY = "        << SAVEPOLY << endl;
-      cout << "SAVEPLOT = "        << SAVEPLOT << endl;
-      cout << "RESETsigANG = "     << RESETsigANG << endl;
-      cout << "RESETcomANG = "     << RESETcomANG << endl;
-      cout << "FULLTOYS = "        << FULLTOYS << endl;
-      cout << "FUNCERRBAND = "     << FUNCERRBAND << endl;
-      cout << "MINIMIZER = "       << MINIMIZER << endl;
-      cout << "GENPARAMS = "       << GENPARAMS << endl;
+      // cout << "\nMAKEmumuPLOTS = " << MAKEmumuPLOTS << endl;
+      // cout << "SETBATCH  = "       << SETBATCH << endl;
+      // cout << "PLOT  = "           << PLOT << endl;
+      // cout << "SAVEPOLY = "        << SAVEPOLY << endl;
+      // cout << "SAVEPLOT = "        << SAVEPLOT << endl;
+      // cout << "RESETsigANG = "     << RESETsigANG << endl;
+      // cout << "RESETcomANG = "     << RESETcomANG << endl;
+      // cout << "FULLTOYS = "        << FULLTOYS << endl;
+      // cout << "FUNCERRBAND = "     << FUNCERRBAND << endl;
+      // cout << "MINIMIZER = "       << MINIMIZER << endl;
+      // cout << "GENPARAMS = "       << GENPARAMS << endl;
 
-      cout << "\nPARAMETERFILEIN = " << PARAMETERFILEIN << endl;
-      cout << "PARAMETERFILEOUT = "  << PARAMETERFILEOUT << endl;
+      // cout << "\nPARAMETERFILEIN = " << PARAMETERFILEIN << endl;
+      // cout << "PARAMETERFILEOUT = "  << PARAMETERFILEOUT << endl;
 
 
       if (SETBATCH == true)
       {
-        cout << "\n[GenerateToys::main]\t@@@ Setting batch mode @@@" << endl;
+        cout << "\n[ExtractYield::main]\t@@@ Setting batch mode @@@" << endl;
         gROOT->SetBatch(true);
 
         // #############################
@@ -2982,7 +3190,7 @@ int main(int argc, char** argv)
       fileFitResults.open(myString.str().c_str(),ios_base::app);
       if (fileFitResults.good() == false)
       {
-        cout << "[GenerateToys::main]\tError opening file : " << myString.str().c_str() << endl;
+        cout << "[ExtractYield::main]\tError opening file : " << myString.str().c_str() << endl;
         CloseAllAndQuit(theApp,NtplFile);
       }
 
@@ -3010,8 +3218,8 @@ int main(int argc, char** argv)
       // # Read other parameters : this also allow to understand if the parameter file is well written #
       // ###############################################################################################
       LUMI = Utility->ReadLumi(ParameterFILE);
-      if (Utility->WhatIsThis(ParameterFILE) == 0) cout << "\n[GenerateToys::main]\t@@@ I recognize that this is a DATA file @@@" << endl;
-      else                                         cout << "\n[GenerateToys::main]\t@@@ I recognize that this is a Monte Carlo file @@@" << endl;
+      if (Utility->WhatIsThis(ParameterFILE) == 0) cout << "\n[ExtractYield::main]\t@@@ I recognize that this is a DATA file @@@" << endl;
+      else                                         cout << "\n[ExtractYield::main]\t@@@ I recognize that this is a Monte Carlo file @@@" << endl;
 
 
       // ###################
@@ -3023,26 +3231,24 @@ int main(int argc, char** argv)
           (FitType == 206))
       {
         NtplFile = TFile::Open(fileName.c_str(),"READ");
+
+	if (useToyDataset)
+	{
+	  // #################
+	  // # Load datasets #
+	  // #################
+	  LoadDatasets(NtplFile, specBin, FitType, toyIndx);
+	} else {
+	  // #################
+	  // # Make datasets #
+	  // #################
         theTree  = (TTree*) NtplFile->Get("B0KstMuMu/B0KstMuMuNTuple");
         NTuple   = new B0KstMuMuSingleCandTreeContent();
         NTuple->Init();
 
-
-        // #################
-        // # Make datasets #
-        // #################
-        cout << "\n[GenerateToys::main]\t@@@ Making datasets @@@" << endl;
-        //MakeDatasets(NTuple,FitType);
-
-        //RooDataSet* dataset=new RooDataSet("ToyDataset","ToyDataset",RooArgSet(*ctK,*ctL,*phi,B0MassArb));
-        RooDataSet* dataset=new RooDataSet("ToyDataset","ToyDataset",RooArgSet(*ctK,*ctL,*phi));
-        dataset->Print("v");
-
-	MakeToyDatasets(FitType,specBin,useEffPDF,&configParam,&fitParam,toyIndx);
-	//GenerateBkg(toyIndx,i);
-
-        // return 0;
-
+        cout << "\n[ExtractYield::main]\t@@@ Making datasets @@@" << endl;
+        MakeDatasets(NTuple,FitType);
+	}
 
         // ##############################
         // # Select the proper fit type #
@@ -3051,43 +3257,43 @@ int main(int argc, char** argv)
         // #############################
         // # 3D-fit P5P-Fl per q^2 bin #
         // #############################
-      //   cout << "\n[GenerateToys::main]\t@@@ Now fit invariant mass, cos(theta_K) and cos(theta_l) per mumu q^2 bins @@@" << endl;
-      //   if ((FitType == 1) ||(FitType == 6))   IterativeMass3AnglesFitq2Bins(SingleCandNTuple_RejectPsi,
-      //                                                                        useEffPDF,
-      //                                                                        B0MassArb,
-      //                                                                        ctL,
-      //                                                                        ctK,
-      //                                                                        phi,
-      //                                                                        specBin,
-      //                                                                        FitType,
-      //                                                                        &q2Bins,
-      //                                                                        &configParam,&fitParam,
-      //                                                                        &vecConstr,
-      //                                                                        fileIndx);
+        cout << "\n[ExtractYield::main]\t@@@ Now fit invariant mass, cos(theta_K) and cos(theta_l) per mumu q^2 bins @@@" << endl;
+        if ((FitType == 1) ||(FitType == 6))   IterativeMass3AnglesFitq2Bins(SingleCandNTuple_RejectPsi,
+                                                                             useEffPDF,
+                                                                             B0MassArb,
+                                                                             ctL,
+                                                                             ctK,
+                                                                             phi,
+                                                                             specBin,
+                                                                             FitType,
+                                                                             &q2Bins,
+                                                                             &configParam,&fitParam,
+                                                                             &vecConstr,
+                                                                             fileIndx);
 
-      //   if ((FitType == 106))                     Iterative3AnglesFitq2Bins(SingleCandNTuple_RejectPsi,
-      //                                                                       useEffPDF,
-      //                                                                       ctL,
-      //                                                                       ctK,
-      //                                                                       phi,
-      //                                                                       specBin,
-      //                                                                       FitType,
-      //                                                                       &q2Bins,
-      //                                                                       &configParam,&fitParam,
-      //                                                                       &vecConstr,
-      //                                                                       fileIndx);
+        if ((FitType == 106))                     Iterative3AnglesFitq2Bins(SingleCandNTuple_RejectPsi,
+                                                                            useEffPDF,
+                                                                            ctL,
+                                                                            ctK,
+                                                                            phi,
+                                                                            specBin,
+                                                                            FitType,
+                                                                            &q2Bins,
+                                                                            &configParam,&fitParam,
+                                                                            &vecConstr,
+                                                                            fileIndx);
 
-      //   if ((FitType == 206))                      Iterative3AnglesFitq2Bins(SingleCandNTuple,
-      //                                                                        useEffPDF,
-      //                                                                        ctL,
-      //                                                                        ctK,
-      //                                                                        phi,
-      //                                                                        specBin,
-      //                                                                        FitType,
-      //                                                                        &q2Bins,
-      //                                                                        &configParam,&fitParam,
-      //                                                                        &vecConstr,
-      //                                                                        fileIndx);
+        if ((FitType == 206))                      Iterative3AnglesFitq2Bins(SingleCandNTuple,
+                                                                             useEffPDF,
+                                                                             ctL,
+                                                                             ctK,
+                                                                             phi,
+                                                                             specBin,
+                                                                             FitType,
+                                                                             &q2Bins,
+                                                                             &configParam,&fitParam,
+                                                                             &vecConstr,
+                                                                             fileIndx);
 
       }
       fileFitResults.close();           
@@ -3106,7 +3312,7 @@ int main(int argc, char** argv)
     else
     {
       cout << "Wrong parameter: " << endl;
-      cout << "./GenerateToys [FitType] [input/output[if toy-MC]File.root] [noEffCorr yesEffCorr]" << endl;
+      cout << "./ExtractYield [FitType] [input/output[if toy-MC]File.root] [noEffCorr yesEffCorr]" << endl;
       cout << "               [q^2 bin to fit (0 - ...)]" << endl;
 
       cout << "\n --> noEffCorr     = no eff. correction" << endl;
@@ -3118,7 +3324,7 @@ int main(int argc, char** argv)
   else
   {
     cout << "Parameter missing: " << endl;
-    cout << "./GenerateToys [FitType] [input/output[if toy-MC]File.root] [noEffCorr yesEffCorr]" << endl;
+    cout << "./ExtractYield [FitType] [input/output[if toy-MC]File.root] [noEffCorr yesEffCorr]" << endl;
     cout << "               [q^2 bin to fit (0 - ...)]" << endl;
 
     cout << "\n --> noEffCorr     = no eff. correction" << endl;

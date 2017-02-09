@@ -56,7 +56,7 @@ double MINlo_P5[9] = {0.326,0.300,0.392,0.190,0,0.277,0,-0.20,0.173};
 float P1BF [9] = {0.150675,-0.668496, 0.498243,-0.476409,0,-0.453944,0,-0.368363, -0.547864};
 float P5BF [9] = {0.105585,-0.562285,-0.953227,-0.643975,0, -0.73848,0,-0.646982, -0.549104};
 
-int meth = 4;
+int meth = 3;
 
 void read (int q2BinIndx, int genIndx, bool plot=true)
 {
@@ -143,8 +143,8 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
 
   for (int toyIndx=0; toyIndx<100; toyIndx++) { //if (toyIndx==42) continue;
     // cout<<toyIndx<<endl;
-    TString filename = Form("Data_pull/%i/pull_m%i_result%i.log",toyIndx,meth,q2BinIndx+1); 
-    if (genIndx>0) filename = Form("Data_pull%i/%i/pull_m%i_result%i_v2.log",genIndx,toyIndx,meth,q2BinIndx+1); 
+    TString filename = Form("Data_pull/%i/pull_m%i_result%i_v4.log",toyIndx,meth,q2BinIndx+1); 
+    if (genIndx>0) filename = Form("Data_pull%i/%i/pull_m%i_result%i_v4.log",genIndx,toyIndx,meth,q2BinIndx+1); 
     if ( gSystem->AccessPathName(filename) ) continue;
     fstream fin (filename,fstream::in);
 
@@ -215,11 +215,11 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
     fin>>cent_P1;
     fin>>erhi_P1;
     fin>>erlo_P1;
-    if (genIndx==0) fin>>pull_P1;
+    // if (genIndx==0) fin>>pull_P1;
     fin>>cent_P5;
     fin>>erhi_P5;
     fin>>erlo_P5;
-    if (genIndx==0) fin>>pull_P5;
+    // if (genIndx==0) fin>>pull_P5;
 
     fin>>lastval>>area;
 
@@ -289,6 +289,9 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
 
     if (plot) hlastval[q2BinIndx]->Fill(-1*log(lastval/peak));
 
+    // if (P5BF[q2BinIndx] < erlo_P5) cout<<toyIndx<<" "<<erlo_P5<<" "<<cent_P5<<" "<<erhi_P5<<endl; 
+    // if (erhi_P5-cent_P5<0 || cent_P5-erlo_P5<0) cout<<toyIndx<<" "<<erlo_P5<<" "<<cent_P5<<" "<<erhi_P5<<" "<<-1*log(lastval/peak)<<endl;
+    // if (erhi_P1-cent_P1<0 || cent_P1-erlo_P1<0) cout<<toyIndx<<" "<<erlo_P1<<" "<<cent_P1<<" "<<erhi_P1<<" "<<-1*log(lastval/peak)<<endl;
     // if ((fabs(pull_P1)>1 && ymas>exp(-0.5)) || (fabs(pull_P1)<1 && ymas<exp(-0.5))) cout<<toyIndx<<" "<<pull_P1<<" "<<ymas<<" "<<ylow<<endl;
   }
 
@@ -298,7 +301,7 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
   int coverP5=0;
   float refval_P1 = P1BF[q2BinIndx];
   float refval_P5 = P5BF[q2BinIndx];
-  float err_P1, err_P5;
+  float err_P1, err_P5; 
   for (size_t i=0; i<vcent_P1.size(); i++) {
     if (vcent_P1[i]-refval_P1<0) err_P1 = verhi_P1[i]-vcent_P1[i];
     else err_P1 = vcent_P1[i]-verlo_P1[i];
@@ -307,6 +310,7 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
     hpull_P1[q2BinIndx]->Fill((vcent_P1[i]-refval_P1)/err_P1);
     hpull_P5[q2BinIndx]->Fill((vcent_P5[i]-refval_P5)/err_P5);
     if ( refval_P1<verhi_P1[i] && refval_P1>verlo_P1[i] )  coverP1++;
+    // cout<<verlo_P5[i]<<refval_P5<<verhi_P5[i]<<endl;
     if ( refval_P5<verhi_P5[i] && refval_P5>verlo_P5[i] )  coverP5++;
   }
   
@@ -414,18 +418,18 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
 
     string dirname = "Data_pull/";
     if (genIndx>0) dirname = Form("Data_pull%i/",genIndx);
-    c1c->SaveAs(dirname+Form("P1cent%i_m%i_%i.pdf",q2BinIndx,meth,genIndx));
-    c5c->SaveAs(dirname+Form("P5cent%i_m%i_%i.pdf",q2BinIndx,meth,genIndx));
-    c1e->SaveAs(dirname+Form("P1err%i_m%i_%i.pdf",q2BinIndx,meth,genIndx));
-    c5e->SaveAs(dirname+Form("P5err%i_m%i_%i.pdf",q2BinIndx,meth,genIndx));
-    c1p->SaveAs(dirname+Form("P1pull%i_m%i_%i.pdf",q2BinIndx,meth,genIndx));
-    c5p->SaveAs(dirname+Form("P5pull%i_m%i_%i.pdf",q2BinIndx,meth,genIndx))
-    c1c->SaveAs(dirname+Form("P1cent%i_m%i_%i.root",q2BinIndx,meth,genIndx));
-    c5c->SaveAs(dirname+Form("P5cent%i_m%i_%i.root",q2BinIndx,meth,genIndx));
-    c1e->SaveAs(dirname+Form("P1err%i_m%i_%i.root",q2BinIndx,meth,genIndx));
-    c5e->SaveAs(dirname+Form("P5err%i_m%i_%i.root",q2BinIndx,meth,genIndx));
-    c1p->SaveAs(dirname+Form("P1pull%i_m%i_%i.root",q2BinIndx,meth,genIndx));
-    c5p->SaveAs(dirname+Form("P5pull%i_m%i_%i.root",q2BinIndx,meth,genIndx));
+    c1c->SaveAs((dirname+Form("P1cent%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c5c->SaveAs((dirname+Form("P5cent%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c1e->SaveAs((dirname+Form("P1err%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c5e->SaveAs((dirname+Form("P5err%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c1p->SaveAs((dirname+Form("P1pull%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c5p->SaveAs((dirname+Form("P5pull%i_m%i_%i_v4.pdf",q2BinIndx,meth,genIndx)).c_str());
+    c1c->SaveAs((dirname+Form("P1cent%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
+    c5c->SaveAs((dirname+Form("P5cent%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
+    c1e->SaveAs((dirname+Form("P1err%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
+    c5e->SaveAs((dirname+Form("P5err%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
+    c1p->SaveAs((dirname+Form("P1pull%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
+    c5p->SaveAs((dirname+Form("P5pull%i_m%i_%i_v4.root",q2BinIndx,meth,genIndx)).c_str());
 
     cs = new TCanvas("cs");
     hlastval[q2BinIndx]->Draw();
@@ -460,19 +464,19 @@ void read (int q2BinIndx, int genIndx, bool plot=true)
 
 void plot_pull (int q2BinIndx = 0, int genIndx=-1, bool plot=true)
 {
-  if (genIndx==-1) for (genIndx=0;genIndx<9;genIndx++) {
-      if (q2BinIndx==0) {
-	for (q2BinIndx=1;q2BinIndx<10;q2BinIndx++) read(q2BinIndx-1, genIndx, false);
-	q2BinIndx=0;
+  if (q2BinIndx==0) for (q2BinIndx=1;q2BinIndx<10;q2BinIndx++) {
+      if (genIndx==-1) {
+	for (genIndx=0;genIndx<9;genIndx++) read(q2BinIndx-1, genIndx, false);
+	genIndx=-1;
       }
-      else if (q2BinIndx>0 && q2BinIndx<10) read(q2BinIndx-1, genIndx, false);
+      else if (genIndx>-1 && genIndx<9) read(q2BinIndx-1, genIndx, false);
     }
-  else if (genIndx>-1 && genIndx<9) {
-    if (q2BinIndx==0) {
-      for (q2BinIndx=1;q2BinIndx<10;q2BinIndx++) read(q2BinIndx-1, genIndx, false);
-      q2BinIndx=0;
+  else if (q2BinIndx>0 && q2BinIndx<10) {
+    if (genIndx==-1) {
+      for (genIndx=0;genIndx<9;genIndx++) read(q2BinIndx-1, genIndx, false);
+      genIndx=-1;
     }
-    else if (q2BinIndx>0 && q2BinIndx<10) read(q2BinIndx-1, genIndx, plot);
+    else if (genIndx>-1 && genIndx<9) read(q2BinIndx-1, genIndx, plot);
   }
   return;
 }

@@ -850,7 +850,7 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     VarsAng->add(*p);     
 
     myString.clear(); myString.str("");
-    if (true || atoi(Utility->GetGenericParam("UseSPwave").c_str()) == false)
+    if ( atoi(Utility->GetGenericParam("UseSPwave").c_str()) == false)
     {
       // #####################
       // # P-wave decay rate #
@@ -907,7 +907,7 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
     // ####################################
 
     myString.clear(); myString.str("");
-    if (true || atoi(Utility->GetGenericParam("UseSPwave").c_str()) == false)
+    if (atoi(Utility->GetGenericParam("UseSPwave").c_str()) == false)
     {
       // #####################
       // # P-wave decay rate #
@@ -1386,7 +1386,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     myString.clear(); myString.str("");
     myString << fitParam->operator[](Utility->GetFitParamIndx("FsS"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"FsS",1.0,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"FsS")->setConstant(true);
+    GetVar(pdf,"FsS")->setConstant(false);
   }
   if (GetVar(pdf,"AsS") != NULL)
   {
@@ -1394,7 +1394,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
     // myString << 0;
     myString << fitParam->operator[](Utility->GetFitParamIndx("AsS"))->operator[](q2BinIndx);
     SetValueAndErrors(pdf,"AsS",1.0,&myString,&value,&errLo,&errHi);
-    GetVar(pdf,"AsS")->setConstant(true);
+    GetVar(pdf,"AsS")->setConstant(false);
   }
   if (GetVar(pdf,"As5S") != NULL)
   {
@@ -1460,8 +1460,9 @@ void LoadDatasets (string fileName, int specBin, int FitType, int toyIndx)
   RooWorkspace* w;
   TFile* NtplFile;
   {
-    if (fileName=="/lustre/cmswork/boletti/Kstmumu/CMSSW_5_3_28/src/Stefano/B0KstMuMu/plugins/Data_pull") NtplFile = new TFile( (fileName+"/0/toy.root").c_str(), "READ");
-    else NtplFile = new TFile( (fileName+Form("/0/toy%i.root",specBin)).c_str(), "READ");
+    /*if (fileName=="/lustre/cmswork/boletti/Kstmumu/CMSSW_5_3_28/src/Stefano/B0KstMuMu/plugins/Data_pull") NtplFile = new TFile( (fileName+"/0/toy.root").c_str(), "READ");
+      else */
+    NtplFile = new TFile( (fileName+Form("/0/toy%i.root",specBin)).c_str(), "READ");
     w = (RooWorkspace*)NtplFile->Get("ws");
     // cout << "RooWorkspace " << w << endl;
     SingleCandNTuple_RejectPsi = SingleCandNTuple = (RooDataSet*)w->data(Form("toy%i_sig%i",toyIndx,specBin));
@@ -1469,8 +1470,9 @@ void LoadDatasets (string fileName, int specBin, int FitType, int toyIndx)
     NtplFile->Close();
   }
   for (int subSample=1; subSample<0; subSample++) {
-    if (subSample<16 && (subSample!=15 || specBin!=5) && fileName=="/lustre/cmswork/boletti/Kstmumu/CMSSW_5_3_28/src/Stefano/B0KstMuMu/plugins/Data_pull") NtplFile = new TFile( (fileName+Form("/%i/toy.root",subSample)).c_str(), "READ");
-    else NtplFile = new TFile( (fileName+Form("/%i/toy%i.root",subSample,specBin)).c_str(), "READ");
+    /*if (subSample<16 && (subSample!=15 || specBin!=5) && fileName=="/lustre/cmswork/boletti/Kstmumu/CMSSW_5_3_28/src/Stefano/B0KstMuMu/plugins/Data_pull") NtplFile = new TFile( (fileName+Form("/%i/toy.root",subSample)).c_str(), "READ");
+      else */
+    NtplFile = new TFile( (fileName+Form("/%i/toy%i.root",subSample,specBin)).c_str(), "READ");
     w = (RooWorkspace*)NtplFile->Get("ws");
     // cout << "RooWorkspace " << w << endl;
     SingleCandNTuple->append(*((RooDataSet*)w->data(Form("toy%i_sig%i",toyIndx,specBin))));
@@ -2422,7 +2424,7 @@ RooFitResult* MakeMass3AnglesFit (RooDataSet* dataSet, RooAbsPdf** TotalPDF, Roo
     // vecConstr->find("AsS_constr")->Print();
     // vecConstr->find("FsS_constr")->Print();
 
-    if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),ExternalConstraints(*vecConstr),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER),Strategy(2));
+    if (atoi(Utility->GetGenericParam("ApplyConstr").c_str()) == true) fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),ExternalConstraints(*vecConstr),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER),Strategy(2),Hesse(false));
     else                                                               fitResult = (*TotalPDF)->fitTo(*dataSet,Extended(true),Save(true),Minos(atoi(Utility->GetGenericParam("UseMINOS").c_str())),Minimizer(MINIMIZER),Strategy(2));
     
     // RooAbsReal* nll = (*TotalPDF)->createNLL(*dataSet, Extended(true));

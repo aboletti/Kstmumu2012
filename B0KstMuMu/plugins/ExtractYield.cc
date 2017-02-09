@@ -18,6 +18,7 @@
 #include <TLatex.h>
 #include <TCutG.h>
 #include <Math/Functor.h>
+#include <TRandom3.h>
 
 #include <TMinuit.h>
 #include <RooRealVar.h>
@@ -84,7 +85,7 @@ using namespace RooFit;
 #define MAKEmumuPLOTS false
 #define SETBATCH      true
 #define PROFILENLL    false //[true= plot the profile likelihood]
-#define PROFILE2D     true  //[true= plot the 2D profile likelihood]
+#define PROFILE2D     false //[true= plot the 2D profile likelihood]
 #define PLOT          false //[true= plot the results]
 #define SAVEPOLY      false // ["true" = save bkg polynomial coefficients in new parameter file; "false" = save original values]
 #define SAVEPLOT      false   //2015-08-20
@@ -1023,7 +1024,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
   unsigned int NCoeffPolyBKGpeak3;
   unsigned int NCoeffPolyBKGcomb3;
 
-  TRandom RG(scanIndx+1);
+  TRandom3 RG(scanIndx+1);
 
 
   if (GetVar(pdf,"meanS") != NULL)
@@ -1354,7 +1355,8 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
       // 	inVal = pdf->getVariables()->getRealValue("P5pS")+RooRandom::gaussian(&RG)*scanStep3[q2BinIndx];
       // } while (inVal<-10. || inVal>10.); 
       // pdf->getVariables()->setRealValue("P5pS",inVal);
-      pdf->getVariables()->setRealValue("P5pS",0.8*(RooRandom::uniform(&RG)-1));
+      // pdf->getVariables()->setRealValue("P5pS",0.8*(RooRandom::uniform(&RG)-1));
+      pdf->getVariables()->setRealValue("P5pS",bestP5p);
     }
     if (PROFILENLL) {
       if (scanIndx%2==1) {
@@ -1390,7 +1392,8 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
       // 	inVal = pdf->getVariables()->getRealValue("P1S")+RooRandom::gaussian(&RG)*scanStep2[q2BinIndx];
       // } while (inVal<-1. || inVal>1.); 
       // pdf->getVariables()->setRealValue("P1S",inVal);
-      pdf->getVariables()->setRealValue("P1S",0.8-(1.6+2*pdf->getVariables()->getRealValue("P5pS"))*RooRandom::uniform(&RG));
+      // pdf->getVariables()->setRealValue("P1S",0.8-(1.6+2*pdf->getVariables()->getRealValue("P5pS"))*RooRandom::uniform(&RG));
+      pdf->getVariables()->setRealValue("P1S",bestP1);
     }
     if (PROFILENLL) {
       if (scanIndx%2==0) {
@@ -1423,7 +1426,7 @@ unsigned int CopyFitResults (RooAbsPdf* pdf, unsigned int q2BinIndx, vector<vect
 	xP1 = bestP1 + P1width*RooRandom::gaussian(&RG);
 	xP5 = bestP5p + P5pwidth*RooRandom::gaussian(&RG);
 	for (indx=1; indx<198; indx++) if (aP1Lim[indx]>xP1) break;
-      } while ( fabs(xP5) > fabs( aP5pLim[indx] - (aP1Lim[indx]-xP1) * (aP5pLim[indx]-aP5pLim[indx-1]) / (aP1Lim[indx]-aP1Lim[indx-1]) ) );
+      } while ( fabs(xP1) > 1 || fabs(xP5) > fabs( aP5pLim[indx] - (aP1Lim[indx]-xP1) * (aP5pLim[indx]-aP5pLim[indx-1]) / (aP1Lim[indx]-aP1Lim[indx-1]) ) );
       pdf->getVariables()->setRealValue("P1S", xP1);
       if (GetVar(pdf,"P5pS") != NULL) pdf->getVariables()->setRealValue("P5pS", xP5);
       GetVar(pdf,"P1S")->setConstant(true);

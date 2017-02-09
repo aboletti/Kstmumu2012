@@ -87,6 +87,7 @@ float P5BF [9] = {0.105585,-0.562285,-0.953227,-0.643975,0, -0.73848,0,-0.646982
 void open (int q2BinIndx, int scanIndx, bool print=false)
 {
   TString filename = Form("Data_scan_2dpro/%i/Fitresult4_2.root",scanIndx);
+  // TString filename = Form("Data_pull3/97/sc_%i/Fitresult5_2.root",scanIndx);
   if ( gSystem->AccessPathName(filename) ) return;
   TFile* f = new TFile(filename);
   if (f) {
@@ -157,6 +158,7 @@ void read (int q2BinIndx)
   counter=0;
 
   minNll = 9999999;
+  // for (int cnt=1; cnt<=41; cnt++) {
   for (int cnt=1; cnt<=8100; cnt++) {
     good[cnt-1] = 0;
 
@@ -459,7 +461,7 @@ void read (int q2BinIndx)
   gLim6[q2BinIndx]->SetMarkerColor(17);
 
   // can[q2BinIndx]->SaveAs(Form("Data_scan_2dpro/bound_b%i.pdf",q2BinIndx));
-  // can[q2BinIndx]->SaveAs(Form("Data_scan_2dpro/scan2d_b%i_v6.pdf",q2BinIndx));
+  // can[q2BinIndx]->SaveAs(Form("Data_scan_2dpro/scan2d_b%i_v7.pdf",q2BinIndx));
 
   // can[q2BinIndx] = new TCanvas (Form("can%i",q2BinIndx),Form("can%i",q2BinIndx));
 

@@ -162,7 +162,7 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
   grlike[q2BinIndx]->SetTitle("");
 
   minNll = 9999999;
-  for (int cnt=1; cnt<=32; cnt++) {
+  for (int cnt=1; cnt<42; cnt++) {
     // good[cnt-1] = 0;
 
     // cout<<cnt<<endl;
@@ -177,15 +177,22 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
 
   // open(q2BinIndx, toyIndx, best, genIndx, true);
 
-  double* aP5pLim = new double[nLim[q2BinIndx]];
-  double* aP1Lim = new double[nLim[q2BinIndx]];
+  vector<double> aP5pLim (0);
+  vector<double> aP1Lim (0);
   fstream fin (Form("waveP_lim%i.list",q2BinIndx),fstream::in);
   fin.ignore(100,'\n');
   fin.ignore(100,'\n');
-  for (int i=0; i<nLim[q2BinIndx]; i++) {
-    fin>>aP5pLim[i]>>aP1Lim[i];
-    // if ( aP5pLim[i]==0 && aP1Lim[i]==0 )  nLim[q2BinIndx]=i;
-  }
+  double uno, due;
+  fin>>uno>>due;
+  do {
+    aP5pLim.push_back(uno);
+    aP1Lim.push_back(due);
+    fin>>uno>>due;
+  } while (due>aP1Lim[aP1Lim.size()-1]); 
+  // for (int i=0; i<nLim[q2BinIndx]; i++) {
+  //   fin>>aP5pLim[i]>>aP1Lim[i];
+  //   // if ( aP5pLim[i]==0 && aP1Lim[i]==0 )  nLim[q2BinIndx]=i;
+  // }
   fin.close();
 
   double* aP5pLim0 = new double[nLim[q2BinIndx]];
@@ -288,9 +295,15 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
       hboun[q2BinIndx]->SetBinContent(i,j,0);
       float xP1 = hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i);
       float xP5 = hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j);
-      int indx;
-      for (indx=1; indx<nLim[q2BinIndx]; indx++) if (aP1Lim[indx]>xP1) break;
-      if ( indx<nLim[q2BinIndx] && fabs(xP5) > fabs( aP5pLim[indx] - (aP1Lim[indx]-xP1) * (aP5pLim[indx]-aP5pLim[indx-1]) / (aP1Lim[indx]-aP1Lim[indx-1]) ) ) hlike[q2BinIndx]->SetBinContent(i,j,0);
+      float P5lim=2;
+      if (xP1>=0.99) P5lim = fabs(aP5pLim[aP5pLim.size()-1]);
+      else if (xP1<=-0.99) P5lim = fabs(aP5pLim[0]);
+      else {
+        int indx;
+	for (indx=1; indx<aP1Lim.size(); indx++) if (aP1Lim[indx]>xP1) break;
+	P5lim = fabs(aP5pLim[indx] - (aP1Lim[indx]-xP1) * (aP5pLim[indx]-aP5pLim[indx-1]) / (aP1Lim[indx]-aP1Lim[indx-1]) );
+      }
+      if ( fabs(xP5) > P5lim ) hlike[q2BinIndx]->SetBinContent(i,j,0);
       else {
 	hlike[q2BinIndx]->SetBinContent(i,j,fgaus[q2BinIndx]->Eval(xP1,xP5)/exp(fgaus[q2BinIndx]->GetParameter(0)));
 	total += hlike[q2BinIndx]->GetBinContent(i,j);
@@ -302,46 +315,50 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
       }
     }
   
+  double P1up=-1;
+  double P1do=1;
+  double P5up=-1.5;
+  double P5do=1.5;
   for (int i=1; i<601; i++) for (int j=1; j<901; j++) if (hlike[q2BinIndx]->GetBinContent(i,j)>max_phy*exp(-0.5)) {
 	  hboun[q2BinIndx]->SetBinContent(i,j,1);
 	  prob += hlike[q2BinIndx]->GetBinContent(i,j);
+	  if (hlike[q2BinIndx]->GetXaxis()->GetBinLowEdge(i) < P1do) P1do = hlike[q2BinIndx]->GetXaxis()->GetBinLowEdge(i);
+	  if (hlike[q2BinIndx]->GetXaxis()->GetBinUpEdge(i) > P1up) P1up = hlike[q2BinIndx]->GetXaxis()->GetBinUpEdge(i);
+	  if (hlike[q2BinIndx]->GetYaxis()->GetBinLowEdge(j) < P5do) P5do = hlike[q2BinIndx]->GetYaxis()->GetBinLowEdge(j);
+	  if (hlike[q2BinIndx]->GetYaxis()->GetBinUpEdge(j) > P5up) P5up = hlike[q2BinIndx]->GetYaxis()->GetBinUpEdge(j);
       }
 
   // cout<<"Histo filled"<<endl;
 
   // cout<<"Limit found"<<endl;
 
-  TGraph* boundary = new TGraph();
-  short last=0;
-  int bou_cnt = 0;
+  // TGraph* boundary = new TGraph();
+  // short last=0;
+  // int bou_cnt = 0;
 
-  double P1up=-1;
-  double P1do=1;
-  double P5up=-1.5;
-  double P5do=1.5;
 
-  for (int i=1; i<601; i++) for (int j=1; j<901; j++) { 
-      if ( j>1 && abs(hboun[q2BinIndx]->GetBinContent(i,j)-last) == 1 ) {
-	boundary->SetPoint( bou_cnt, hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i), 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) );
-	bou_cnt++;
-	if ( P5up<0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) )
-	  P5up = 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1));
-	if ( P5do>0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) )
-          P5do = 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1));
-      }
-      last = hboun[q2BinIndx]->GetBinContent(i,j);
-    }
-  for (int j=1; j<901; j++) for (int i=1; i<601; i++) {
-      if ( i>1 && abs(hboun[q2BinIndx]->GetBinContent(i,j)-last) == 1 ) {
-	boundary->SetPoint( bou_cnt, 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)), hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j) );
-	bou_cnt++;
-	if ( P1up<0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)) )
-	  P1up = 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1));
-	if ( P1do>0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)) )
-          P1do = 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1));
-      }
-      last = hboun[q2BinIndx]->GetBinContent(i,j);
-    }
+  // for (int i=1; i<601; i++) for (int j=1; j<901; j++) { 
+  //     if ( j>1 && abs(hboun[q2BinIndx]->GetBinContent(i,j)-last) == 1 ) {
+  // 	boundary->SetPoint( bou_cnt, hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i), 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) );
+  // 	bou_cnt++;
+  // 	if ( P5up<0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) )
+  // 	  P5up = 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1));
+  // 	if ( P5do>0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1)) )
+  //         P5do = 0.5*(hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j)+hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j-1));
+  //     }
+  //     last = hboun[q2BinIndx]->GetBinContent(i,j);
+  //   }
+  // for (int j=1; j<901; j++) for (int i=1; i<601; i++) {
+  //     if ( i>1 && abs(hboun[q2BinIndx]->GetBinContent(i,j)-last) == 1 ) {
+  // 	boundary->SetPoint( bou_cnt, 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)), hlike[q2BinIndx]->GetYaxis()->GetBinCenter(j) );
+  // 	bou_cnt++;
+  // 	if ( P1up<0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)) )
+  // 	  P1up = 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1));
+  // 	if ( P1do>0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1)) )
+  //         P1do = 0.5*(hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i)+hlike[q2BinIndx]->GetXaxis()->GetBinCenter(i-1));
+  //     }
+  //     last = hboun[q2BinIndx]->GetBinContent(i,j);
+  //   }
 
   // cout<<"Limit drawn"<<endl;
 
@@ -353,7 +370,7 @@ void read (int q2BinIndx, int toyIndx, int genIndx=0)
 
   cout<</*"P1 result: "<<*/bestP1[0]<<" "<<P1up<<" "<<P1do<<endl; //" "<<(P1BF[q2BinIndx]>bestP1[0]?(bestP1[0]-P1BF[q2BinIndx])/(P1up-bestP1[0]):(bestP1[0]-P1BF[q2BinIndx])/(bestP1[0]-P1do))<<endl;
   cout<</*"P5 result: "<<*/bestP5p[0]<<" "<<P5up<<" "<<P5do<<endl; //" "<<(P5BF[q2BinIndx]>bestP5p[0]?(bestP5p[0]-P5BF[q2BinIndx])/(P5up-bestP5p[0]):(bestP5p[0]-P5BF[q2BinIndx])/(bestP5p[0]-P5do))<<endl;
-  cout<<exp(-0.5)<<" "<<prob/total<<endl;
+  cout<<exp(-0.5)/max_phy<<" "<<prob/total<<endl;
 
   /*for (int i=0; i<vLik.size(); i++) {
     if (vLik[i] < minNll+0.5) {
