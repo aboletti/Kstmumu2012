@@ -304,7 +304,7 @@ RooArgSet vecConstr;
 struct MyProdPdf
 {
   public:
-    MyProdPdf (RooAbsPdf& pdf1, RooAbsPdf& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
+    MyProdPdf (RooAbsReal& pdf1, RooAbsReal& pdf2) : _pdf1(pdf1), _pdf2(pdf2)
   { 
     const RooArgSet* allvar1 = pdf1.getVariables();
     const RooArgSet* allvar2 = pdf2.getVariables();
@@ -333,9 +333,10 @@ struct MyProdPdf
       return _pdf1.getVal() * _pdf2.getVal();
     }
 
+
   private:
-    RooAbsPdf& _pdf1; 
-    RooAbsPdf& _pdf2; 
+    RooAbsReal& _pdf1; 
+    RooAbsReal& _pdf2; 
     RooArgList _vars;
 
 };
@@ -868,9 +869,12 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
+
+      /// OLD SETUP BEFORE TIME OPTIMIZATION
       // RooAbsPdf*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
-      // RooAbsPdf*  EffPdf_R = new RooGenericPdf("EffPDF", ("100+"+*(y->getPlotLabel())+"+"+*(z->getPlotLabel())+"+"+*(p->getPlotLabel())).c_str(),RooArgSet(*VarsAng));
-      RooAbsPdf*  EffPdf_R = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+
+      RooAbsReal*  EffPdf_R = Utility->ReadRTEffPDF(q2BinIndx, z, y,p);
+
       MyProdPdf* myprodpdf = new MyProdPdf (*_AnglesPDF, *EffPdf_R);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
       AnglesPDF  = new RooFunctorPdfBinding(Form("AngleS_bin%d",q2BinIndx),"Signal * Efficiency",*prodFunctor,myprodpdf->vars());
@@ -919,8 +923,11 @@ RooAbsPdf* MakeAngWithEffPDF (unsigned int q2BinIndx, RooRealVar* y, RooRealVar*
       // #############################
       // # Make 3D efficiency p.d.f. #
       // #############################
+      /// OLD SETUP BEFORE TIME OPTIMIZATION
       // RooAbsPdf* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
-      RooAbsPdf*  EffPdf_W = new RooGenericPdf("EffPDF", "100+ctK",RooArgSet(*VarsAng));
+
+      RooAbsReal* EffPdf_W = Utility->ReadWTEffPDF( q2BinIndx, z , y,p);
+
       MyProdPdf* myprodpdf = new MyProdPdf(*_AnglesPDF, *EffPdf_W);
       ROOT::Math::Functor* prodFunctor = new ROOT::Math::Functor(*myprodpdf,myprodpdf->ndim());
       AnglesPDF = new RooFunctorPdfBinding(Form("AngleM_bin%d",q2BinIndx),"MisTag * Efficiency",*prodFunctor,myprodpdf->vars());
